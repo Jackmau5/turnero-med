@@ -10,9 +10,8 @@ import lombok.Getter;
 public class TurnoResponseDto {
 
     private final Long id;
-    private final String paciente;
-    private final String medico;
-    private final String especialidad;
+    private final Long pacienteId;
+    private final Long medicoId;
     private final Fecha fecha;
     private final Direccion direccion;
     private final String estado;

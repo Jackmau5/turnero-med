@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(TurnoNotFoundException.class)
-    public ResponseEntity<String> manejarTurnoNoEncontrado(TurnoNotFoundException exception) {
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<String> manejarNoEncontrado(NotFoundException exception) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
 

@@ -2,8 +2,14 @@ package com.dr_commerce.e_commerce.vi.service;
 
 import com.dr_commerce.e_commerce.vi.dto.TurnoRequestDto;
 import com.dr_commerce.e_commerce.vi.dto.TurnoResponseDto;
+import com.dr_commerce.e_commerce.vi.exception.MedicoNotFoundException;
+import com.dr_commerce.e_commerce.vi.exception.PacienteNotFoundException;
 import com.dr_commerce.e_commerce.vi.exception.TurnoNotFoundException;
+import com.dr_commerce.e_commerce.vi.model.Medico;
+import com.dr_commerce.e_commerce.vi.model.Paciente;
 import com.dr_commerce.e_commerce.vi.model.Turno;
+import com.dr_commerce.e_commerce.vi.repository.MedicoRepository;
+import com.dr_commerce.e_commerce.vi.repository.PacienteRepository;
 import com.dr_commerce.e_commerce.vi.repository.TurnoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,9 +21,14 @@ import java.util.List;
 public class TurnoService {
 
     private final TurnoRepository turnoRepository;
+    private final PacienteRepository pacienteRepository;
+    private final MedicoRepository medicoRepository;
 
-    public TurnoService(TurnoRepository turnoRepository) {
+    public TurnoService(TurnoRepository turnoRepository, PacienteRepository pacienteRepository,
+                        MedicoRepository medicoRepository) {
         this.turnoRepository = turnoRepository;
+        this.pacienteRepository = pacienteRepository;
+        this.medicoRepository = medicoRepository;
     }
 
     public List<TurnoResponseDto> obtenerTodos() {
@@ -54,9 +65,8 @@ public class TurnoService {
     }
 
     private void completarTurno(Turno turno, TurnoRequestDto request) {
-        turno.setPaciente(request.getPaciente());
-        turno.setMedico(request.getMedico());
-        turno.setEspecialidad(request.getEspecialidad());
+        turno.setPaciente(buscarPaciente(request.getPacienteId()));
+        turno.setMedico(buscarMedico(request.getMedicoId()));
         turno.setFecha(request.getFecha());
         turno.setDireccion(request.getDireccion());
         turno.setEstado(request.getEstado());
@@ -65,12 +75,27 @@ public class TurnoService {
     private TurnoResponseDto aResponseDto(Turno turno) {
         return new TurnoResponseDto(
                 turno.getId(),
-                turno.getPaciente(),
-                turno.getMedico(),
-                turno.getEspecialidad(),
+                turno.getPaciente() == null ? null : turno.getPaciente().getId(),
+                turno.getMedico() == null ? null : turno.getMedico().getId(),
                 turno.getFecha(),
                 turno.getDireccion(),
                 turno.getEstado()
         );
+    }
+
+    private Paciente buscarPaciente(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("El pacienteId es obligatorio");
+        }
+        return pacienteRepository.findById(id)
+                .orElseThrow(() -> new PacienteNotFoundException(id));
+    }
+
+    private Medico buscarMedico(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("El medicoId es obligatorio");
+        }
+        return medicoRepository.findById(id)
+                .orElseThrow(() -> new MedicoNotFoundException(id));
     }
 }

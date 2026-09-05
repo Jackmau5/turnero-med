@@ -11,9 +11,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class TurnoRequestDto {
 
-    private String paciente;
-    private String medico;
-    private String especialidad;
+    private Long pacienteId;
+    private Long medicoId;
     private Fecha fecha;
     private Direccion direccion;
     private String estado;

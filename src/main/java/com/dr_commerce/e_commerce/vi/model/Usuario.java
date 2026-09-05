@@ -1,12 +1,10 @@
 package com.dr_commerce.e_commerce.vi.model;
 
-import jakarta.persistence.Embedded;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,30 +12,26 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "turnos")
+@Table(name = "usuarios")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Turno {
+public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "paciente_id")
-    private Paciente paciente;
+    @Column(nullable = false)
+    private String nombre;
 
-    @ManyToOne
-    @JoinColumn(name = "medico_id")
-    private Medico medico;
+    @Column(nullable = false)
+    private String apellido;
 
-    @Embedded
-    private Fecha fecha;
+    @Column(nullable = false, unique = true)
+    private String email;
 
-    @Embedded
-    private Direccion direccion;
-
-    private String estado; // ej: "PENDIENTE", "CONFIRMADO", "CANCELADO"
+    @Column(nullable = false)
+    private String password;
 }
