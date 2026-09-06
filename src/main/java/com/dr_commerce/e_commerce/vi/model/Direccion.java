@@ -1,8 +1,16 @@
 package com.dr_commerce.e_commerce.vi.model;
 
 import jakarta.persistence.Embeddable;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Embeddable
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Direccion {
 
     private String calle;
@@ -12,25 +20,4 @@ public class Direccion {
     private String ciudad;
 
     private String codigoPostal;
-
-    public Direccion() {}
-
-    public Direccion(String calle, Integer altura, String ciudad, String codigoPostal) {
-        this.calle = calle;
-        this.altura = altura;
-        this.ciudad = ciudad;
-        this.codigoPostal = codigoPostal;
-    }
-
-    public String getCalle() { return calle; }
-    public void setCalle(String calle) { this.calle = calle; }
-
-    public Integer getAltura() { return altura; }
-    public void setAltura(Integer altura) { this.altura = altura; }
-
-    public String getCiudad() { return ciudad; }
-    public void setCiudad(String ciudad) { this.ciudad = ciudad; }
-
-    public String getCodigoPostal() { return codigoPostal; }
-    public void setCodigoPostal(String codigoPostal) { this.codigoPostal = codigoPostal; }
 }
