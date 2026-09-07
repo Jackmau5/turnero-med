@@ -5,6 +5,8 @@ import com.dr_commerce.e_commerce.vi.dto.PacienteResponseDto;
 import com.dr_commerce.e_commerce.vi.exception.PacienteNotFoundException;
 import com.dr_commerce.e_commerce.vi.model.Paciente;
 import com.dr_commerce.e_commerce.vi.repository.PacienteRepository;
+import com.dr_commerce.e_commerce.vi.repository.UsuarioRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,9 +17,14 @@ import java.util.List;
 public class PacienteService {
 
     private final PacienteRepository pacienteRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public PacienteService(PacienteRepository pacienteRepository) {
+    public PacienteService(PacienteRepository pacienteRepository, UsuarioRepository usuarioRepository,
+                            PasswordEncoder passwordEncoder) {
         this.pacienteRepository = pacienteRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<PacienteResponseDto> obtenerTodos() {
@@ -35,7 +42,11 @@ public class PacienteService {
         if (pacienteRepository.existsByDni(request.getDni())) {
             throw new IllegalArgumentException("Ya existe un paciente registrado con ese DNI");
         }
+        if (usuarioRepository.existsByEmail(request.getEmail())) {
+            throw new IllegalArgumentException("Ya existe un usuario registrado con ese email");
+        }
         Paciente paciente = new Paciente();
+        paciente.setPassword(passwordEncoder.encode(request.getPassword()));
         completarPaciente(paciente, request);
         return aResponseDto(pacienteRepository.save(paciente));
     }
@@ -59,6 +70,7 @@ public class PacienteService {
     private void completarPaciente(Paciente paciente, PacienteRequestDto request) {
         paciente.setNombre(request.getNombre());
         paciente.setApellido(request.getApellido());
+        paciente.setEmail(request.getEmail());
         paciente.setDni(request.getDni());
     }
 
@@ -67,6 +79,7 @@ public class PacienteService {
                 paciente.getId(),
                 paciente.getNombre(),
                 paciente.getApellido(),
+                paciente.getEmail(),
                 paciente.getDni()
         );
     }

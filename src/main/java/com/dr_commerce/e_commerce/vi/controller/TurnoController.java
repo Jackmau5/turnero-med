@@ -2,6 +2,7 @@ package com.dr_commerce.e_commerce.vi.controller;
 
 import com.dr_commerce.e_commerce.vi.dto.TurnoRequestDto;
 import com.dr_commerce.e_commerce.vi.dto.TurnoResponseDto;
+import com.dr_commerce.e_commerce.vi.model.Especialidad;
 import com.dr_commerce.e_commerce.vi.service.TurnoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -28,7 +30,11 @@ public class TurnoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TurnoResponseDto>> obtenerTodos() {
+    public ResponseEntity<List<TurnoResponseDto>> obtenerTodos(
+            @RequestParam(required = false) Especialidad especialidad) {
+        if (especialidad != null) {
+            return ResponseEntity.ok(turnoService.buscarPorEspecialidad(especialidad));
+        }
         return ResponseEntity.ok(turnoService.obtenerTodos());
     }
 

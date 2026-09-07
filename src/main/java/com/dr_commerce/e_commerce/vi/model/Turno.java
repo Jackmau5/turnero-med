@@ -2,6 +2,8 @@ package com.dr_commerce.e_commerce.vi.model;
 
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -39,5 +41,6 @@ public class Turno {
     @Embedded
     private Direccion direccion;
 
-    private String estado; // ej: "PENDIENTE", "CONFIRMADO", "CANCELADO"
+    @Enumerated(EnumType.STRING)
+    private EstadoTurno estado;
 }

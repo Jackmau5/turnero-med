@@ -1,6 +1,7 @@
 package com.dr_commerce.e_commerce.vi.dto;
 
 import com.dr_commerce.e_commerce.vi.model.Direccion;
+import com.dr_commerce.e_commerce.vi.model.EstadoTurno;
 import com.dr_commerce.e_commerce.vi.model.Fecha;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,5 +15,5 @@ public class TurnoResponseDto {
     private final Long medicoId;
     private final Fecha fecha;
     private final Direccion direccion;
-    private final String estado;
+    private final EstadoTurno estado;
 }
