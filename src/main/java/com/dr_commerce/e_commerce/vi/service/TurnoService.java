@@ -92,7 +92,7 @@ public class TurnoService {
 
     private Paciente buscarPaciente(Long id) {
         if (id == null) {
-            throw new IllegalArgumentException("El pacienteId es obligatorio");
+            return null;
         }
         return pacienteRepository.findById(id)
                 .orElseThrow(() -> new PacienteNotFoundException(id));

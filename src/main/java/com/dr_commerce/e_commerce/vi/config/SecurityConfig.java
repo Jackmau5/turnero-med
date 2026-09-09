@@ -28,6 +28,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/turnos/**").permitAll()
                 .requestMatchers("/api/medicos/**").permitAll()
                 .requestMatchers("/api/pacientes/**").permitAll()
+                .requestMatchers("/api/carritos/**").permitAll()
                 .anyRequest().authenticated()
             );
         return http.build();

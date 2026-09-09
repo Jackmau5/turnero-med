@@ -11,4 +11,6 @@ import java.util.List;
 public interface TurnoRepository extends JpaRepository<Turno, Long> {
 
     List<Turno> findByMedico_Especialidad(Especialidad especialidad);
+
+    List<Turno> findByCarritoId(Long carritoId);
 }
