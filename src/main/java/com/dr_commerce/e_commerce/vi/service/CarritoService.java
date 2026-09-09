@@ -50,14 +50,15 @@ public class CarritoService {
         Carrito carrito = buscarCarritoAbierto(carritoId);
         Turno turno = buscarTurno(turnoId);
 
+        if (turno.getEstado() == EstadoTurno.RESERVADO) {
+            throw new IllegalArgumentException("El turno ya fue reservado por otro paciente");
+        }
         if (turno.getEstado() != EstadoTurno.DISPONIBLE) {
             throw new IllegalArgumentException("El turno no está disponible");
         }
-        if (turno.getCarrito() != null) {
-            throw new IllegalArgumentException("El turno ya está en otro carrito");
-        }
 
         turno.setCarrito(carrito);
+        turno.setEstado(EstadoTurno.RESERVADO);
         turnoRepository.save(turno);
         return aResponseDto(carrito);
     }
@@ -72,6 +73,7 @@ public class CarritoService {
         }
 
         turno.setCarrito(null);
+        turno.setEstado(EstadoTurno.DISPONIBLE);
         turnoRepository.save(turno);
         return aResponseDto(carrito);
     }
@@ -106,6 +108,7 @@ public class CarritoService {
 
         List<TurnoResponseDto> turnosLiberados = turnos.stream().map(turno -> {
             turno.setCarrito(null);
+            turno.setEstado(EstadoTurno.DISPONIBLE);
             return aTurnoResponseDto(turno);
         }).toList();
         turnoRepository.saveAll(turnos);
