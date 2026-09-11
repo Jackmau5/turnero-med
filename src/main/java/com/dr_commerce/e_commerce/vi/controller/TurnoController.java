@@ -3,6 +3,7 @@ package com.dr_commerce.e_commerce.vi.controller;
 import com.dr_commerce.e_commerce.vi.dto.TurnoRequestDto;
 import com.dr_commerce.e_commerce.vi.dto.TurnoResponseDto;
 import com.dr_commerce.e_commerce.vi.model.Especialidad;
+import com.dr_commerce.e_commerce.vi.model.EstadoTurno;
 import com.dr_commerce.e_commerce.vi.service.TurnoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,9 +32,17 @@ public class TurnoController {
 
     @GetMapping
     public ResponseEntity<List<TurnoResponseDto>> obtenerTodos(
-            @RequestParam(required = false) Especialidad especialidad) {
+            @RequestParam(required = false) Especialidad especialidad,
+            @RequestParam(required = false) Long pacienteId,
+            @RequestParam(required = false) EstadoTurno estado) {
         if (especialidad != null) {
             return ResponseEntity.ok(turnoService.buscarPorEspecialidad(especialidad));
+        }
+        if (pacienteId != null) {
+            return ResponseEntity.ok(turnoService.buscarPorPaciente(pacienteId));
+        }
+        if (estado != null) {
+            return ResponseEntity.ok(turnoService.buscarPorEstado(estado));
         }
         return ResponseEntity.ok(turnoService.obtenerTodos());
     }

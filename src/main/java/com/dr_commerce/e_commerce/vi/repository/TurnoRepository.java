@@ -1,6 +1,7 @@
 package com.dr_commerce.e_commerce.vi.repository;
 
 import com.dr_commerce.e_commerce.vi.model.Especialidad;
+import com.dr_commerce.e_commerce.vi.model.EstadoTurno;
 import com.dr_commerce.e_commerce.vi.model.Turno;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -13,4 +14,8 @@ public interface TurnoRepository extends JpaRepository<Turno, Long> {
     List<Turno> findByMedico_Especialidad(Especialidad especialidad);
 
     List<Turno> findByCarritoId(Long carritoId);
+
+    List<Turno> findByPacienteId(Long pacienteId);
+
+    List<Turno> findByEstado(EstadoTurno estado);
 }

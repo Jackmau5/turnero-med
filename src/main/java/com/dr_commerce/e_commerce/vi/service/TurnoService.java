@@ -4,6 +4,7 @@ import com.dr_commerce.e_commerce.vi.dto.TurnoRequestDto;
 import com.dr_commerce.e_commerce.vi.dto.TurnoResponseDto;
 import com.dr_commerce.e_commerce.vi.exception.MedicoNotFoundException;
 import com.dr_commerce.e_commerce.vi.model.Especialidad;
+import com.dr_commerce.e_commerce.vi.model.EstadoTurno;
 import com.dr_commerce.e_commerce.vi.exception.PacienteNotFoundException;
 import com.dr_commerce.e_commerce.vi.exception.TurnoNotFoundException;
 import com.dr_commerce.e_commerce.vi.model.Medico;
@@ -44,6 +45,18 @@ public class TurnoService {
 
     public List<TurnoResponseDto> buscarPorEspecialidad(Especialidad especialidad) {
         return turnoRepository.findByMedico_Especialidad(especialidad).stream()
+                .map(this::aResponseDto)
+                .toList();
+    }
+
+    public List<TurnoResponseDto> buscarPorPaciente(Long pacienteId) {
+        return turnoRepository.findByPacienteId(pacienteId).stream()
+                .map(this::aResponseDto)
+                .toList();
+    }
+
+    public List<TurnoResponseDto> buscarPorEstado(EstadoTurno estado) {
+        return turnoRepository.findByEstado(estado).stream()
                 .map(this::aResponseDto)
                 .toList();
     }
