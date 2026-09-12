@@ -1,5 +1,6 @@
 package com.dr_commerce.e_commerce.vi.dto;
 
+import com.dr_commerce.e_commerce.vi.model.Role;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -11,4 +12,5 @@ public class UsuarioResponseDto {
     private final String nombre;
     private final String apellido;
     private final String email;
+    private final Role role;
 }
