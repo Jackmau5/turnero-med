@@ -1,5 +1,6 @@
 package com.dr_commerce.e_commerce.vi.controller;
 
+import com.dr_commerce.e_commerce.vi.dto.LoginResponseDto;
 import com.dr_commerce.e_commerce.vi.dto.UsuarioAddRequestDto;
 import com.dr_commerce.e_commerce.vi.dto.UsuarioRequestDto;
 import com.dr_commerce.e_commerce.vi.dto.UsuarioResponseDto;
@@ -28,8 +29,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UsuarioResponseDto> login(@RequestBody UsuarioRequestDto request) {
-        UsuarioResponseDto usuario = authService.login(request);
-        return ResponseEntity.ok(usuario);
+    public ResponseEntity<LoginResponseDto> login(@RequestBody UsuarioRequestDto request) {
+        LoginResponseDto respuesta = authService.login(request);
+        return ResponseEntity.ok(respuesta);
     }
 }
