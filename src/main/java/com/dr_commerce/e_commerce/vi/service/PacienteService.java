@@ -21,7 +21,7 @@ public class PacienteService {
     private final PasswordEncoder passwordEncoder;
 
     public PacienteService(PacienteRepository pacienteRepository, UsuarioRepository usuarioRepository,
-                            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder) {
         this.pacienteRepository = pacienteRepository;
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
@@ -80,7 +80,6 @@ public class PacienteService {
                 paciente.getNombre(),
                 paciente.getApellido(),
                 paciente.getEmail(),
-                paciente.getDni()
-        );
+                paciente.getDni());
     }
 }

@@ -4,6 +4,7 @@ import com.dr_commerce.e_commerce.vi.dto.MedicoRequestDto;
 import com.dr_commerce.e_commerce.vi.dto.MedicoResponseDto;
 import com.dr_commerce.e_commerce.vi.service.MedicoService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,6 +38,7 @@ public class MedicoController {
         return ResponseEntity.ok(medicoService.obtenerPorId(id));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<MedicoResponseDto> crear(@RequestBody MedicoRequestDto request) {
         MedicoResponseDto medicoCreado = medicoService.crear(request);
@@ -47,12 +49,14 @@ public class MedicoController {
         return ResponseEntity.created(ubicacion).body(medicoCreado);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<MedicoResponseDto> actualizar(@PathVariable Long id,
                                                           @RequestBody MedicoRequestDto request) {
         return ResponseEntity.ok(medicoService.actualizar(id, request));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         medicoService.eliminar(id);

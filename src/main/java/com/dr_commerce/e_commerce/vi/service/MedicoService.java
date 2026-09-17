@@ -21,7 +21,7 @@ public class MedicoService {
     private final PasswordEncoder passwordEncoder;
 
     public MedicoService(MedicoRepository medicoRepository, UsuarioRepository usuarioRepository,
-                          PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder) {
         this.medicoRepository = medicoRepository;
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
@@ -82,7 +82,6 @@ public class MedicoService {
                 medico.getApellido(),
                 medico.getEmail(),
                 medico.getMatricula(),
-                medico.getEspecialidad()
-        );
+                medico.getEspecialidad());
     }
 }
