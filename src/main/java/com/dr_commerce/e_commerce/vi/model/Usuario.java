@@ -52,33 +52,39 @@ public class Usuario implements UserDetails {
 
     // ---- UserDetails ----
 
+    // Devuelve el rol del usuario como autoridad para Spring Security.
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + rol.name()));
     }
 
+    // Usa el email del usuario como nombre de usuario para autenticarse.
     @Override
     public String getUsername() {
         return email;
     }
 
+    // Indica que la cuenta no está expirada.
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
 
+    // Indica que la cuenta no está bloqueada.
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
 
+    // Indica que las credenciales no están expiradas.
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
+    // Indica que la cuenta está habilitada.
     @Override
     public boolean isEnabled() {
         return true;
     }
-}
+}

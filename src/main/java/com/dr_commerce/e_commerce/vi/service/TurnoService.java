@@ -33,34 +33,40 @@ public class TurnoService {
         this.medicoRepository = medicoRepository;
     }
 
+    // Obtiene todos los turnos y los convierte a DTO.
     public List<TurnoResponseDto> obtenerTodos() {
         return turnoRepository.findAll().stream().map(this::aResponseDto).toList();
     }
 
+    // Busca un turno por su ID o lanza una excepción si no existe.
     public TurnoResponseDto obtenerPorId(Long id) {
         return turnoRepository.findById(id)
                 .map(this::aResponseDto)
                 .orElseThrow(() -> new TurnoNotFoundException(id));
     }
 
+    // Busca los turnos según la especialidad del médico.
     public List<TurnoResponseDto> buscarPorEspecialidad(Especialidad especialidad) {
         return turnoRepository.findByMedico_Especialidad(especialidad).stream()
                 .map(this::aResponseDto)
                 .toList();
     }
 
+    // Busca los turnos asociados a un paciente.
     public List<TurnoResponseDto> buscarPorPaciente(Long pacienteId) {
         return turnoRepository.findByPacienteId(pacienteId).stream()
                 .map(this::aResponseDto)
                 .toList();
     }
 
+    // Busca los turnos según su estado.
     public List<TurnoResponseDto> buscarPorEstado(EstadoTurno estado) {
         return turnoRepository.findByEstado(estado).stream()
                 .map(this::aResponseDto)
                 .toList();
     }
 
+    // Crea un turno con los datos recibidos y lo guarda.
     @Transactional
     public TurnoResponseDto crear(TurnoRequestDto request) {
         Turno turno = new Turno();
@@ -68,6 +74,7 @@ public class TurnoService {
         return aResponseDto(turnoRepository.save(turno));
     }
 
+    // Busca un turno, actualiza sus datos y guarda los cambios.
     @Transactional
     public TurnoResponseDto actualizar(Long id, TurnoRequestDto request) {
         Turno turno = turnoRepository.findById(id)
@@ -76,6 +83,7 @@ public class TurnoService {
         return aResponseDto(turnoRepository.save(turno));
     }
 
+    // Elimina un turno por su ID.
     @Transactional
     public void eliminar(Long id) {
         if (!turnoRepository.existsById(id)) {
@@ -84,6 +92,7 @@ public class TurnoService {
         turnoRepository.deleteById(id);
     }
 
+    // Completa los datos del turno buscando el paciente y médico correspondientes.
     private void completarTurno(Turno turno, TurnoRequestDto request) {
         turno.setPaciente(buscarPaciente(request.getPacienteId()));
         turno.setMedico(buscarMedico(request.getMedicoId()));
@@ -92,6 +101,7 @@ public class TurnoService {
         turno.setEstado(request.getEstado());
     }
 
+    // Convierte un turno a su DTO de respuesta.
     private TurnoResponseDto aResponseDto(Turno turno) {
         return new TurnoResponseDto(
                 turno.getId(),
@@ -103,6 +113,7 @@ public class TurnoService {
         );
     }
 
+    // Busca un paciente por su ID o devuelve null si no se especificó.
     private Paciente buscarPaciente(Long id) {
         if (id == null) {
             return null;
@@ -111,6 +122,7 @@ public class TurnoService {
                 .orElseThrow(() -> new PacienteNotFoundException(id));
     }
 
+    // Busca un médico por su ID o lanza una excepción si no existe.
     private Medico buscarMedico(Long id) {
         if (id == null) {
             throw new IllegalArgumentException("El medicoId es obligatorio");

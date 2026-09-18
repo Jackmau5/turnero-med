@@ -28,6 +28,7 @@ public class AuthService {
 
     @Transactional
     public UsuarioResponseDto register(UsuarioAddRequestDto request) {
+        // Verifica que no exista otro usuario con el mismo email.
         if (usuarioRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("Ya existe un usuario registrado con ese email");
         }
@@ -45,6 +46,7 @@ public class AuthService {
         // Generar JWT para el usuario recién creado
         String token = jwtUtil.generarToken(guardado);
 
+        // Devuelve los datos del usuario registrado junto con su token.
         return new UsuarioResponseDto(
                 guardado.getId(),
                 guardado.getNombre(),
@@ -56,9 +58,11 @@ public class AuthService {
 
     @Transactional(readOnly = true)
     public UsuarioResponseDto login(UsuarioRequestDto request) {
+        // Busca el usuario por su email.
         Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("Email o contraseña incorrectos"));
 
+        // Verifica que la contraseña ingresada coincida con la almacenada.
         if (!passwordEncoder.matches(request.getPassword(), usuario.getPassword())) {
             throw new IllegalArgumentException("Email o contraseña incorrectos");
         }
@@ -66,6 +70,7 @@ public class AuthService {
         // Generar JWT para el usuario autenticado
         String token = jwtUtil.generarToken(usuario);
 
+        // Devuelve los datos del usuario autenticado junto con su token.
         return new UsuarioResponseDto(
                 usuario.getId(),
                 usuario.getNombre(),

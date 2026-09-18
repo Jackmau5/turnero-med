@@ -29,7 +29,7 @@ public class TurnoController {
     public TurnoController(TurnoService turnoService) {
         this.turnoService = turnoService;
     }
-
+    // Obtiene los turnos y permite filtrarlos por especialidad, paciente o estado.
     @GetMapping
     public ResponseEntity<List<TurnoResponseDto>> obtenerTodos(
             @RequestParam(required = false) Especialidad especialidad,
@@ -47,11 +47,13 @@ public class TurnoController {
         return ResponseEntity.ok(turnoService.obtenerTodos());
     }
 
+    // Busca un turno por su ID y lo devuelve.
     @GetMapping("/{id}")
     public ResponseEntity<TurnoResponseDto> obtenerPorId(@PathVariable Long id) {
         return ResponseEntity.ok(turnoService.obtenerPorId(id));
     }
 
+    // Crea un nuevo turno y devuelve su ubicación junto con los datos creados.
     @PostMapping
     public ResponseEntity<TurnoResponseDto> crear(@RequestBody TurnoRequestDto request) {
         TurnoResponseDto turnoCreado = turnoService.crear(request);
@@ -62,12 +64,14 @@ public class TurnoController {
         return ResponseEntity.created(ubicacion).body(turnoCreado);
     }
 
+    // Actualiza un turno existente y devuelve los datos actualizados.
     @PutMapping("/{id}")
     public ResponseEntity<TurnoResponseDto> actualizar(@PathVariable Long id,
-                                                        @RequestBody TurnoRequestDto request) {
+                                                       @RequestBody TurnoRequestDto request) {
         return ResponseEntity.ok(turnoService.actualizar(id, request));
     }
 
+    // Elimina un turno por su ID y devuelve una respuesta sin contenido.
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         turnoService.eliminar(id);

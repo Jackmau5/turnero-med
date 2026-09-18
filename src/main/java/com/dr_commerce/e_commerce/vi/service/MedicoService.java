@@ -27,16 +27,19 @@ public class MedicoService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    // Obtiene todos los médicos y los convierte a DTO.
     public List<MedicoResponseDto> obtenerTodos() {
         return medicoRepository.findAll().stream().map(this::aResponseDto).toList();
     }
 
+    // Busca un médico por su ID o lanza una excepción si no existe.
     public MedicoResponseDto obtenerPorId(Long id) {
         return medicoRepository.findById(id)
                 .map(this::aResponseDto)
                 .orElseThrow(() -> new MedicoNotFoundException(id));
     }
 
+    // Crea un médico, valida sus datos y guarda su contraseña codificada.
     @Transactional
     public MedicoResponseDto crear(MedicoRequestDto request) {
         if (medicoRepository.existsByMatricula(request.getMatricula())) {
@@ -51,6 +54,7 @@ public class MedicoService {
         return aResponseDto(medicoRepository.save(medico));
     }
 
+    // Busca un médico, actualiza sus datos y guarda los cambios.
     @Transactional
     public MedicoResponseDto actualizar(Long id, MedicoRequestDto request) {
         Medico medico = medicoRepository.findById(id)
@@ -59,6 +63,7 @@ public class MedicoService {
         return aResponseDto(medicoRepository.save(medico));
     }
 
+    // Elimina un médico por su ID.
     @Transactional
     public void eliminar(Long id) {
         if (!medicoRepository.existsById(id)) {
@@ -67,6 +72,7 @@ public class MedicoService {
         medicoRepository.deleteById(id);
     }
 
+    // Completa los datos del médico con la información recibida.
     private void completarMedico(Medico medico, MedicoRequestDto request) {
         medico.setNombre(request.getNombre());
         medico.setApellido(request.getApellido());
@@ -75,6 +81,7 @@ public class MedicoService {
         medico.setEspecialidad(request.getEspecialidad());
     }
 
+    // Convierte un médico a su DTO de respuesta.
     private MedicoResponseDto aResponseDto(Medico medico) {
         return new MedicoResponseDto(
                 medico.getId(),

@@ -26,7 +26,7 @@ public class PacienteController {
     public PacienteController(PacienteService pacienteService) {
         this.pacienteService = pacienteService;
     }
-
+    // Obtiene todos los pacientes y los devuelve en una respuesta HTTP.
     @GetMapping
     public ResponseEntity<List<PacienteResponseDto>> obtenerTodos() {
         return ResponseEntity.ok(pacienteService.obtenerTodos());

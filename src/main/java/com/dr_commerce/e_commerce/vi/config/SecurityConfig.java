@@ -25,16 +25,19 @@ public class SecurityConfig {
         this.jwtFilter = jwtFilter;
     }
 
+    // Configura el codificador de contraseñas usando BCrypt.
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    // Obtiene el administrador de autenticación de Spring Security.
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
+    // Configura las reglas de seguridad y agrega el filtro JWT.
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http

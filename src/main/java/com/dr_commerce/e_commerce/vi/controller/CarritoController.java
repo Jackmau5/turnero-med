@@ -20,7 +20,7 @@ public class CarritoController {
     public CarritoController(CarritoService carritoService) {
         this.carritoService = carritoService;
     }
-
+    // Obtiene el carrito activo del paciente o crea uno si no existe.
     @PostMapping
     public ResponseEntity<CarritoResponseDto> obtenerOCrearActivo(@RequestParam Long pacienteId) {
         return ResponseEntity.ok(carritoService.obtenerOCrearActivo(pacienteId));

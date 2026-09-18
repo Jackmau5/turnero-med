@@ -27,16 +27,19 @@ public class PacienteService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    // Obtiene todos los pacientes y los convierte a DTO.
     public List<PacienteResponseDto> obtenerTodos() {
         return pacienteRepository.findAll().stream().map(this::aResponseDto).toList();
     }
 
+    // Busca un paciente por su ID o lanza una excepción si no existe.
     public PacienteResponseDto obtenerPorId(Long id) {
         return pacienteRepository.findById(id)
                 .map(this::aResponseDto)
                 .orElseThrow(() -> new PacienteNotFoundException(id));
     }
 
+    // Crea un paciente, valida sus datos y guarda su contraseña codificada.
     @Transactional
     public PacienteResponseDto crear(PacienteRequestDto request) {
         if (pacienteRepository.existsByDni(request.getDni())) {
@@ -51,6 +54,7 @@ public class PacienteService {
         return aResponseDto(pacienteRepository.save(paciente));
     }
 
+    // Busca un paciente, actualiza sus datos y guarda los cambios.
     @Transactional
     public PacienteResponseDto actualizar(Long id, PacienteRequestDto request) {
         Paciente paciente = pacienteRepository.findById(id)
@@ -59,6 +63,7 @@ public class PacienteService {
         return aResponseDto(pacienteRepository.save(paciente));
     }
 
+    // Elimina un paciente por su ID.
     @Transactional
     public void eliminar(Long id) {
         if (!pacienteRepository.existsById(id)) {
@@ -67,6 +72,7 @@ public class PacienteService {
         pacienteRepository.deleteById(id);
     }
 
+    // Completa los datos del paciente con la información recibida.
     private void completarPaciente(Paciente paciente, PacienteRequestDto request) {
         paciente.setNombre(request.getNombre());
         paciente.setApellido(request.getApellido());
@@ -74,6 +80,7 @@ public class PacienteService {
         paciente.setDni(request.getDni());
     }
 
+    // Convierte un paciente a su DTO de respuesta.
     private PacienteResponseDto aResponseDto(Paciente paciente) {
         return new PacienteResponseDto(
                 paciente.getId(),

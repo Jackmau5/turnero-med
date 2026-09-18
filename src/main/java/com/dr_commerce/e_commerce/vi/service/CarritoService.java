@@ -34,10 +34,12 @@ public class CarritoService {
         this.pacienteRepository = pacienteRepository;
     }
 
+    // Obtiene un carrito por su ID y lo convierte a DTO.
     public CarritoResponseDto obtenerPorId(Long id) {
         return aResponseDto(buscarCarrito(id));
     }
 
+    // Busca un carrito abierto o crea uno nuevo si no existe.
     @Transactional
     public CarritoResponseDto obtenerOCrearActivo(Long pacienteId) {
         Carrito carrito = carritoRepository.findByPacienteIdAndEstado(pacienteId, EstadoCarrito.ABIERTO)
@@ -45,6 +47,7 @@ public class CarritoService {
         return aResponseDto(carrito);
     }
 
+    // Agrega un turno disponible al carrito y lo marca como reservado.
     @Transactional
     public CarritoResponseDto agregarTurno(Long carritoId, Long turnoId) {
         Carrito carrito = buscarCarritoAbierto(carritoId);
@@ -63,6 +66,7 @@ public class CarritoService {
         return aResponseDto(carrito);
     }
 
+    // Quita un turno del carrito y lo vuelve a marcar como disponible.
     @Transactional
     public CarritoResponseDto quitarTurno(Long carritoId, Long turnoId) {
         Carrito carrito = buscarCarritoAbierto(carritoId);
@@ -78,6 +82,7 @@ public class CarritoService {
         return aResponseDto(carrito);
     }
 
+    // Confirma el carrito, asigna los turnos al paciente y los marca como tomados.
     @Transactional
     public CarritoResponseDto confirmar(Long carritoId) {
         Carrito carrito = buscarCarritoAbierto(carritoId);
@@ -101,6 +106,7 @@ public class CarritoService {
                 guardado.getFechaCreacion(), turnosConfirmados);
     }
 
+    // Cancela el carrito, libera sus turnos y los vuelve a marcar como disponibles.
     @Transactional
     public CarritoResponseDto cancelar(Long carritoId) {
         Carrito carrito = buscarCarritoAbierto(carritoId);
@@ -120,6 +126,7 @@ public class CarritoService {
                 guardado.getFechaCreacion(), turnosLiberados);
     }
 
+    // Crea y guarda un nuevo carrito abierto para un paciente.
     private Carrito crearCarrito(Long pacienteId) {
         Paciente paciente = pacienteRepository.findById(pacienteId)
                 .orElseThrow(() -> new PacienteNotFoundException(pacienteId));
@@ -130,11 +137,13 @@ public class CarritoService {
         return carritoRepository.save(carrito);
     }
 
+    // Busca un carrito por su ID o lanza una excepción si no existe.
     private Carrito buscarCarrito(Long id) {
         return carritoRepository.findById(id)
                 .orElseThrow(() -> new CarritoNotFoundException(id));
     }
 
+    // Busca un carrito y verifica que esté abierto.
     private Carrito buscarCarritoAbierto(Long id) {
         Carrito carrito = buscarCarrito(id);
         if (carrito.getEstado() != EstadoCarrito.ABIERTO) {
@@ -143,11 +152,13 @@ public class CarritoService {
         return carrito;
     }
 
+    // Busca un turno por su ID o lanza una excepción si no existe.
     private Turno buscarTurno(Long id) {
         return turnoRepository.findById(id)
                 .orElseThrow(() -> new TurnoNotFoundException(id));
     }
 
+    // Convierte un carrito y sus turnos a un DTO de respuesta.
     private CarritoResponseDto aResponseDto(Carrito carrito) {
         List<TurnoResponseDto> turnos = turnoRepository.findByCarritoId(carrito.getId()).stream()
                 .map(this::aTurnoResponseDto)
@@ -161,6 +172,7 @@ public class CarritoService {
         );
     }
 
+    // Convierte un turno a su DTO de respuesta.
     private TurnoResponseDto aTurnoResponseDto(Turno turno) {
         return new TurnoResponseDto(
                 turno.getId(),

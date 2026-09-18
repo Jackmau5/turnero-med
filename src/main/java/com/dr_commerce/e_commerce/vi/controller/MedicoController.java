@@ -27,7 +27,7 @@ public class MedicoController {
     public MedicoController(MedicoService medicoService) {
         this.medicoService = medicoService;
     }
-
+    // Obtiene todos los médicos y los devuelve en una respuesta HTTP.
     @GetMapping
     public ResponseEntity<List<MedicoResponseDto>> obtenerTodos() {
         return ResponseEntity.ok(medicoService.obtenerTodos());
