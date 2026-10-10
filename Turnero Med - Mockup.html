@@ -1,0 +1,1353 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turnero Med - Mockup</title>
+    <style>
+        :root {
+            --primary: #0066cc;
+            --primary-dark: #0052a3;
+            --primary-light: #e3f2fd;
+            --secondary: #00d4ff;
+            --success: #2e7d32;
+            --success-light: #e8f5e9;
+            --warning: #f57c00;
+            --danger: #d32f2f;
+            --gray-50: #f8fafb;
+            --gray-100: #f0f2f5;
+            --gray-200: #e0e0e0;
+            --gray-300: #d0d0d0;
+            --gray-600: #666;
+            --gray-700: #555;
+            --text-dark: #1a1a1a;
+            --text-light: #666;
+            --border: #e0e0e0;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background-color: var(--gray-50);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .encabezado {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .contenedor {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .marca {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            justify-content: space-between;
+        }
+
+        .marca-izq {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .marca-icono {
+            font-size: 2rem;
+            font-weight: bold;
+            background: var(--secondary);
+            color: var(--primary);
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .marca-texto h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .marca-texto p {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .marca-enlace {
+            color: white;
+            text-decoration: none;
+        }
+
+        .marca-links {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn-auth {
+            background: white;
+            color: var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-auth:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 1rem 0;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 65px;
+            z-index: 99;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-buttons button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            background: transparent;
+            color: var(--text-dark);
+        }
+
+        .nav-buttons button.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .nav-buttons button:hover:not(.active) {
+            background: var(--gray-100);
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 5rem 2rem;
+            text-align: center;
+            margin: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.95;
+            margin-bottom: 1rem;
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            opacity: 0.95;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            line-height: 1.6;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.875rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--secondary);
+            color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        main {
+            padding: 3rem 0;
+        }
+
+        .seccion-titulo {
+            margin-bottom: 2rem;
+        }
+
+        .seccion-titulo h2 {
+            font-size: 2.5rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .seccion-titulo p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .tarjeta {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .tarjeta::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .tarjeta:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-8px);
+        }
+
+        .tarjeta-encabezado {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-especialidad {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        .numero-tarjeta {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #f0f0f0;
+        }
+
+        .tarjeta h3 {
+            font-size: 1.35rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-dark);
+        }
+
+        .tarjeta p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .tarjeta-precio {
+            background: linear-gradient(135deg, var(--primary-light) 0%, #f0f8ff 100%);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .tarjeta-precio-label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .tarjeta-precio-valor {
+            font-size: 1.75rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.875rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+
+        .form-container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            max-width: 500px;
+            margin: 2rem auto;
+        }
+
+        .form-container h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+
+        .form-container > p {
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+
+        .form-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--text-light);
+        }
+
+        .form-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .card-info {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--primary-light);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .info-content h4 {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .info-content p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 2rem;
+        }
+
+        .tab-button {
+            padding: 1rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: var(--text-light);
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .tab-button.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .view-container {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .view-container.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .citas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .cita-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            border-left: 4px solid var(--primary);
+        }
+
+        .cita-card.proxima {
+            border-left-color: var(--success);
+            background: linear-gradient(to right, rgba(46, 125, 50, 0.05), white);
+        }
+
+        .cita-estado {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .cita-estado.confirmada {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        .cita-estado.pendiente {
+            background: #fff3e0;
+            color: var(--warning);
+        }
+
+        .cita-info {
+            margin-bottom: 1rem;
+        }
+
+        .cita-info h4 {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .cita-info p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .horarios-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .horario-btn {
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+        }
+
+        .horario-btn:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .horario-btn.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .resumen-box {
+            background: linear-gradient(135deg, var(--primary-light) 0%, #f0f8ff 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 2px solid var(--primary);
+            margin-bottom: 2rem;
+        }
+
+        .resumen-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 102, 204, 0.2);
+        }
+
+        .resumen-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .resumen-label {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .resumen-valor {
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .pie {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            color: white;
+            padding: 3rem 0 1rem;
+            margin-top: 4rem;
+        }
+
+        .pie-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .pie-section h4 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .pie-section ul {
+            list-style: none;
+        }
+
+        .pie-section a {
+            color: #aaa;
+            text-decoration: none;
+            font-size: 0.95rem;
+            line-height: 2;
+            transition: color 0.3s ease;
+        }
+
+        .pie-section a:hover {
+            color: white;
+        }
+
+        .pie-bottom {
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1rem;
+            color: #999;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .nav-buttons {
+                gap: 0.25rem;
+            }
+
+            .nav-buttons button {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .marca-links {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .form-container {
+                padding: 1.5rem;
+            }
+
+            .citas-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="encabezado">
+        <div class="contenedor marca">
+            <div class="marca-izq">
+                <div class="marca-icono">+</div>
+                <a href="#" class="marca-enlace" onclick="mostrarVista('home'); return false;">
+                    <div class="marca-texto">
+                        <h1>Turnero <span style="color: #00d4ff;">Med</span></h1>
+                        <p>Salud a tu alcance</p>
+                    </div>
+                </a>
+            </div>
+            <div class="marca-links">
+                <button class="btn-auth" onclick="mostrarVista('login'); return false;">Iniciar sesión</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="nav-buttons">
+        <button class="active" onclick="mostrarVista('home')">🏠 Inicio</button>
+        <button onclick="mostrarVista('especialidades')">📋 Especialidades</button>
+        <button onclick="mostrarVista('detalle-especialidad')">🩺 Detalle</button>
+        <button onclick="mostrarVista('agendar')">📅 Agendar</button>
+        <button onclick="mostrarVista('mis-citas')">📌 Mis citas</button>
+        <button onclick="mostrarVista('perfil')">👤 Perfil</button>
+    </div>
+
+    <!-- 1. Login -->
+    <div id="login" class="view-container">
+        <section class="hero">
+            <div class="hero-content">
+                <div class="hero-label">Bienvenido</div>
+                <h1>Inicia sesión en Turnero Med</h1>
+            </div>
+        </section>
+        <main class="contenedor">
+            <div class="form-container">
+                <h2>Acceso paciente</h2>
+                <p>Ingresa tus credenciales para continuar</p>
+
+                <form>
+                    <div class="form-group">
+                        <label>Correo electrónico</label>
+                        <input type="email" placeholder="tu@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña</label>
+                        <input type="password" placeholder="••••••••" required>
+                    </div>
+                    <button type="button" class="btn btn-primary" style="width: 100%;" onclick="mostrarVista('home')">Iniciar sesión</button>
+                </form>
+
+                <div class="form-link">
+                    ¿No tienes cuenta? <a href="#">Regístrate aquí</a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 2. Home -->
+    <div id="home" class="view-container active">
+        <section class="hero">
+            <div class="hero-content">
+                <div class="hero-label">La salud es lo primero</div>
+                <h1>Tu salud, en buenas manos</h1>
+                <p>Encontrá a los mejores especialistas médicos y agenda tu cita en segundos</p>
+                <button class="btn btn-primary" onclick="mostrarVista('especialidades'); return false;">Explorar especialidades</button>
+            </div>
+        </section>
+
+        <main class="contenedor">
+            <section style="padding: 2rem 0;">
+                <div class="seccion-titulo">
+                    <h2>Por qué elegirnos</h2>
+                    <p>Somos tu partner en salud</p>
+                </div>
+
+                <div class="grid-3">
+                    <div class="card-info">
+                        <div class="info-item">
+                            <div class="info-icon">
+                                ✓
+                            </div>
+                            <div class="info-content">
+                                <h4>Médicos verificados</h4>
+                                <p>Especialistas con amplia trayectoria y certificados</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-info">
+                        <div class="info-item">
+                            <div class="info-icon">
+                                ⏰
+                            </div>
+                            <div class="info-content">
+                                <h4>Turnos rápidos</h4>
+                                <p>Agenda tu cita en minutos sin esperas innecesarias</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-info">
+                        <div class="info-item">
+                            <div class="info-icon">
+                                🔒
+                            </div>
+                            <div class="info-content">
+                                <h4>Privacidad garantizada</h4>
+                                <p>Tus datos médicos están protegidos y seguros</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 3. Especialidades -->
+    <div id="especialidades" class="view-container">
+        <section class="hero" style="padding: 3rem 2rem;">
+            <div class="hero-content">
+                <div class="hero-label">Nuestros servicios</div>
+                <h1>Especialidades médicas</h1>
+                <p>Acceso a diferentes áreas de la medicina</p>
+            </div>
+        </section>
+
+        <main class="contenedor">
+            <section style="padding: 2rem 0;">
+                <div class="seccion-titulo">
+                    <h2>Consultas disponibles</h2>
+                    <p>Elige la especialidad que necesitas</p>
+                </div>
+
+                <div class="grid-3">
+                    <article class="tarjeta">
+                        <div class="tarjeta-encabezado">
+                            <span class="badge badge-especialidad">CARDIOLOGÍA</span>
+                            <span class="numero-tarjeta">01</span>
+                        </div>
+                        <h3>Consulta de cardiología</h3>
+                        <p>Evaluación cardiovascular y seguimiento integral de la salud del corazón. Nuestros cardiólogos especializados diagnostican y tratan enfermedades del sistema circulatorio.</p>
+                        <div class="tarjeta-precio">
+                            <div class="tarjeta-precio-label">Valor de la consulta</div>
+                            <div class="tarjeta-precio-valor">$25.000</div>
+                        </div>
+                        <button class="btn btn-primary" onclick="mostrarVista('detalle-especialidad'); return false;">Ver detalles</button>
+                    </article>
+
+                    <article class="tarjeta">
+                        <div class="tarjeta-encabezado">
+                            <span class="badge badge-especialidad">CLÍNICA MÉDICA</span>
+                            <span class="numero-tarjeta">02</span>
+                        </div>
+                        <h3>Consulta de clínica médica</h3>
+                        <p>Atención general, controles de rutina, diagnóstico y orientación médica. Ideal para tu revisión anual y seguimiento de tu salud preventiva.</p>
+                        <div class="tarjeta-precio">
+                            <div class="tarjeta-precio-label">Valor de la consulta</div>
+                            <div class="tarjeta-precio-valor">$18.000</div>
+                        </div>
+                        <button class="btn btn-primary" onclick="mostrarVista('detalle-especialidad'); return false;">Ver detalles</button>
+                    </article>
+
+                    <article class="tarjeta">
+                        <div class="tarjeta-encabezado">
+                            <span class="badge badge-especialidad">DERMATOLOGÍA</span>
+                            <span class="numero-tarjeta">03</span>
+                        </div>
+                        <h3>Consulta de dermatología</h3>
+                        <p>Consulta especializada para el cuidado de la piel, cabello y uñas. Tratamiento de acné, manchas, verrugas y otras afecciones dermatológicas.</p>
+                        <div class="tarjeta-precio">
+                            <div class="tarjeta-precio-label">Valor de la consulta</div>
+                            <div class="tarjeta-precio-valor">$22.000</div>
+                        </div>
+                        <button class="btn btn-primary" onclick="mostrarVista('detalle-especialidad'); return false;">Ver detalles</button>
+                    </article>
+
+                    <article class="tarjeta">
+                        <div class="tarjeta-encabezado">
+                            <span class="badge badge-especialidad">PEDIATRÍA</span>
+                            <span class="numero-tarjeta">04</span>
+                        </div>
+                        <h3>Consulta de pediatría</h3>
+                        <p>Controles de salud, seguimiento del crecimiento y desarrollo de niños y niñas. Vacunación, nutrición infantil y atención integral pediátrica.</p>
+                        <div class="tarjeta-precio">
+                            <div class="tarjeta-precio-label">Valor de la consulta</div>
+                            <div class="tarjeta-precio-valor">$20.000</div>
+                        </div>
+                        <button class="btn btn-primary" onclick="mostrarVista('detalle-especialidad'); return false;">Ver detalles</button>
+                    </article>
+
+                    <article class="tarjeta">
+                        <div class="tarjeta-encabezado">
+                            <span class="badge badge-especialidad">TRAUMATOLOGÍA</span>
+                            <span class="numero-tarjeta">05</span>
+                        </div>
+                        <h3>Consulta de traumatología</h3>
+                        <p>Evaluación y tratamiento de lesiones en huesos, músculos, articulaciones y ligamentos. Atención de fracturas, esguinces y patologías ortopédicas.</p>
+                        <div class="tarjeta-precio">
+                            <div class="tarjeta-precio-label">Valor de la consulta</div>
+                            <div class="tarjeta-precio-valor">$24.000</div>
+                        </div>
+                        <button class="btn btn-primary" onclick="mostrarVista('detalle-especialidad'); return false;">Ver detalles</button>
+                    </article>
+
+                    <article class="tarjeta">
+                        <div class="tarjeta-encabezado">
+                            <span class="badge badge-especialidad">OFTALMOLOGÍA</span>
+                            <span class="numero-tarjeta">06</span>
+                        </div>
+                        <h3>Consulta de oftalmología</h3>
+                        <p>Control integral de la visión y evaluación de la salud de los ojos. Prescripción de lentes, diagnóstico y tratamiento de enfermedades oftalmológicas.</p>
+                        <div class="tarjeta-precio">
+                            <div class="tarjeta-precio-label">Valor de la consulta</div>
+                            <div class="tarjeta-precio-valor">$21.000</div>
+                        </div>
+                        <button class="btn btn-primary" onclick="mostrarVista('detalle-especialidad'); return false;">Ver detalles</button>
+                    </article>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 4. Detalle Especialidad -->
+    <div id="detalle-especialidad" class="view-container">
+        <section class="hero" style="padding: 3rem 2rem;">
+            <div class="hero-content">
+                <div class="hero-label">Especialidad médica</div>
+                <h1>Cardiología</h1>
+            </div>
+        </section>
+
+        <main class="contenedor">
+            <section style="padding: 2rem 0; max-width: 800px; margin: 0 auto;">
+                <div class="card-info">
+                    <div class="info-item">
+                        <div class="info-icon">
+                            ❤️
+                        </div>
+                        <div class="info-content">
+                            <h4>Descripción</h4>
+                            <p>La cardiología es la especialidad médica dedicada al estudio, diagnóstico y tratamiento de las enfermedades del corazón y del aparato circulatorio. Nuestros especialistas tienen amplia experiencia en el manejo integral de pacientes con diversas patologías cardiovasculares.</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">
+                            ⏱️
+                        </div>
+                        <div class="info-content">
+                            <h4>Duración estimada</h4>
+                            <p>45 minutos por consulta</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">
+                            🔬
+                        </div>
+                        <div class="info-content">
+                            <h4>Estudios incluidos</h4>
+                            <p>Evaluación clínica, electrocardiograma básico, consulta y recomendaciones</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">
+                            💰
+                        </div>
+                        <div class="info-content">
+                            <h4>Precio</h4>
+                            <p><strong style="font-size: 1.3rem; color: var(--primary);">$25.000</strong></p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">
+                            ✅
+                        </div>
+                        <div class="info-content">
+                            <h4>Casos que atendemos</h4>
+                            <p>Hipertensión, arritmias, insuficiencia cardíaca, enfermedad coronaria, valvulopatías y seguimiento post-infarto</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" style="width: 100%; margin-top: 2rem; font-size: 1.1rem; padding: 1rem;" onclick="mostrarVista('agendar'); return false;">
+                    📅 Agendar cita
+                </button>
+            </section>
+        </main>
+    </div>
+
+    <!-- 5. Agendar Cita -->
+    <div id="agendar" class="view-container">
+        <section class="hero" style="padding: 3rem 2rem;">
+            <div class="hero-content">
+                <div class="hero-label">Reserva tu turno</div>
+                <h1>Agendar cita</h1>
+                <p>Selecciona fecha y horario disponible</p>
+            </div>
+        </section>
+
+        <main class="contenedor">
+            <section style="padding: 2rem 0; max-width: 800px; margin: 0 auto;">
+                <div class="card-info">
+                    <h3 style="margin-bottom: 2rem;">Paso 1: Selecciona una fecha</h3>
+
+                    <div class="form-group">
+                        <label>Fecha disponible</label>
+                        <input type="date" value="2024-12-20" required>
+                    </div>
+
+                    <h3 style="margin: 2rem 0 1rem;">Paso 2: Selecciona un horario</h3>
+                    <div class="horarios-grid">
+                        <button class="horario-btn" onclick="this.classList.toggle('selected')">08:00</button>
+                        <button class="horario-btn" onclick="this.classList.toggle('selected')">09:00</button>
+                        <button class="horario-btn" onclick="this.classList.toggle('selected')">10:00</button>
+                        <button class="horario-btn" onclick="this.classList.toggle('selected')">11:00</button>
+                        <button class="horario-btn" onclick="this.classList.toggle('selected')">14:00</button>
+                        <button class="horario-btn" onclick="this.classList.toggle('selected')">15:00</button>
+                        <button class="horario-btn" onclick="this.classList.toggle('selected')">16:00</button>
+                        <button class="horario-btn" onclick="this.classList.toggle('selected')">17:00</button>
+                    </div>
+
+                    <h3 style="margin: 2rem 0 1rem;">Paso 3: Selecciona médico</h3>
+                    <div class="form-group">
+                        <label>Especialista</label>
+                        <select required>
+                            <option>Dr. Juan Pérez - Cardiólogo</option>
+                            <option>Dra. María López - Cardióloga</option>
+                            <option>Dr. Carlos Rodríguez - Cardiólogo</option>
+                        </select>
+                    </div>
+
+                    <h3 style="margin: 2rem 0 1rem;">Resumen de tu cita</h3>
+                    <div class="resumen-box">
+                        <div class="resumen-item">
+                            <span class="resumen-label">Especialidad</span>
+                            <span class="resumen-valor">Cardiología</span>
+                        </div>
+                        <div class="resumen-item">
+                            <span class="resumen-label">Fecha</span>
+                            <span class="resumen-valor">20 de diciembre</span>
+                        </div>
+                        <div class="resumen-item">
+                            <span class="resumen-label">Horario</span>
+                            <span class="resumen-valor">Selecciona un horario</span>
+                        </div>
+                        <div class="resumen-item">
+                            <span class="resumen-label">Médico</span>
+                            <span class="resumen-valor">Dr. Juan Pérez</span>
+                        </div>
+                        <div class="resumen-item">
+                            <span class="resumen-label">Precio</span>
+                            <span class="resumen-valor" style="font-size: 1.3rem;">$25.000</span>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 1rem; font-size: 1.1rem; padding: 1rem;" onclick="mostrarVista('resumen'); return false;">
+                        Confirmar cita
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 6. Resumen/Confirmación -->
+    <div id="resumen" class="view-container">
+        <section class="hero" style="padding: 3rem 2rem;">
+            <div class="hero-content">
+                <div class="hero-label" style="background: rgba(46, 125, 50, 0.3);">Éxito</div>
+                <h1>¡Cita confirmada!</h1>
+            </div>
+        </section>
+
+        <main class="contenedor">
+            <section style="padding: 2rem 0; max-width: 800px; margin: 0 auto;">
+                <div class="card-info" style="border-left: 4px solid var(--success);">
+                    <div class="info-item">
+                        <div class="info-icon" style="background: var(--success-light); color: var(--success);">
+                            ✓
+                        </div>
+                        <div class="info-content">
+                            <h4>Tu cita ha sido reservada</h4>
+                            <p>Te enviaremos un recordatorio 24 horas antes</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">
+                            🎫
+                        </div>
+                        <div class="info-content">
+                            <h4>Número de cita</h4>
+                            <p><strong>#TM-2024-12345</strong></p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">
+                            🩺
+                        </div>
+                        <div class="info-content">
+                            <h4>Cardiología</h4>
+                            <p>Con Dr. Juan Pérez</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">
+                            📅
+                        </div>
+                        <div class="info-content">
+                            <h4>Fecha y hora</h4>
+                            <p>Miércoles, 20 de diciembre de 2024 - 10:00 AM</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">
+                            📍
+                        </div>
+                        <div class="info-content">
+                            <h4>Ubicación</h4>
+                            <p>Centro Médico Turnero Med - Piso 3, Consultorio 301</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button class="btn btn-primary" style="flex: 1;" onclick="mostrarVista('mis-citas'); return false;">Ver mis citas</button>
+                    <button class="btn btn-secondary" style="flex: 1;" onclick="mostrarVista('home'); return false;">Volver al inicio</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 7. Mis Citas -->
+    <div id="mis-citas" class="view-container">
+        <section class="hero" style="padding: 3rem 2rem;">
+            <div class="hero-content">
+                <div class="hero-label">Seguimiento</div>
+                <h1>Mis citas</h1>
+                <p>Aquí puedes ver todas tus citas agendadas</p>
+            </div>
+        </section>
+
+        <main class="contenedor">
+            <section style="padding: 2rem 0;">
+                <div class="tabs">
+                    <button class="tab-button active">Próximas</button>
+                    <button class="tab-button">Pasadas</button>
+                    <button class="tab-button">Canceladas</button>
+                </div>
+
+                <div class="citas-grid">
+                    <div class="cita-card proxima">
+                        <span class="cita-estado confirmada">Confirmada</span>
+                        <div class="cita-info">
+                            <h4>Cardiología</h4>
+                            <p>Dr. Juan Pérez</p>
+                        </div>
+                        <div class="cita-info">
+                            <h4>📅 20 de diciembre</h4>
+                            <p>10:00 AM</p>
+                        </div>
+                        <div class="cita-info">
+                            <h4>📍 Ubicación</h4>
+                            <p>Centro Médico - Piso 3</p>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                            <button class="btn btn-primary" style="flex: 1; padding: 0.5rem;">Reprogramar</button>
+                            <button class="btn btn-secondary" style="flex: 1; padding: 0.5rem;">Cancelar</button>
+                        </div>
+                    </div>
+
+                    <div class="cita-card proxima">
+                        <span class="cita-estado confirmada">Confirmada</span>
+                        <div class="cita-info">
+                            <h4>Dermatología</h4>
+                            <p>Dra. Ana Martínez</p>
+                        </div>
+                        <div class="cita-info">
+                            <h4>📅 22 de diciembre</h4>
+                            <p>03:00 PM</p>
+                        </div>
+                        <div class="cita-info">
+                            <h4>📍 Ubicación</h4>
+                            <p>Centro Médico - Piso 4</p>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                            <button class="btn btn-primary" style="flex: 1; padding: 0.5rem;">Reprogramar</button>
+                            <button class="btn btn-secondary" style="flex: 1; padding: 0.5rem;">Cancelar</button>
+                        </div>
+                    </div>
+
+                    <div class="cita-card">
+                        <span class="cita-estado pendiente">Pendiente de confirmación</span>
+                        <div class="cita-info">
+                            <h4>Traumatología</h4>
+                            <p>Dr. Roberto González</p>
+                        </div>
+                        <div class="cita-info">
+                            <h4>📅 25 de diciembre</h4>
+                            <p>09:30 AM</p>
+                        </div>
+                        <div class="cita-info">
+                            <h4>📍 Ubicación</h4>
+                            <p>Centro Médico - Piso 2</p>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                            <button class="btn btn-primary" style="flex: 1; padding: 0.5rem;">Confirmar</button>
+                            <button class="btn btn-secondary" style="flex: 1; padding: 0.5rem;">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 8. Perfil de Usuario -->
+    <div id="perfil" class="view-container">
+        <section class="hero" style="padding: 3rem 2rem;">
+            <div class="hero-content">
+                <div class="hero-label">Cuenta</div>
+                <h1>Mi perfil</h1>
+            </div>
+        </section>
+
+        <main class="contenedor">
+            <section style="padding: 2rem 0; max-width: 800px; margin: 0 auto;">
+                <div class="card-info">
+                    <h3 style="margin-bottom: 2rem;">Información personal</h3>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+                        <div class="form-group">
+                            <label>Nombre</label>
+                            <input type="text" value="Juan Carlos" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Apellido</label>
+                            <input type="text" value="García López" readonly>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Correo electrónico</label>
+                        <input type="email" value="juan.garcia@email.com" readonly>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+                        <div class="form-group">
+                            <label>Teléfono</label>
+                            <input type="tel" value="+54 9 11 2345 6789" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Documento</label>
+                            <input type="text" value="12.345.678" readonly>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Fecha de nacimiento</label>
+                        <input type="date" value="1985-06-15" readonly>
+                    </div>
+
+                    <h3 style="margin: 2rem 0 1rem;">Información médica</h3>
+
+                    <div class="form-group">
+                        <label>Alergias conocidas</label>
+                        <input type="text" value="Penicilina, Iodo" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Medicamentos actuales</label>
+                        <input type="text" value="Atorvastatina 20mg" readonly>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button class="btn btn-primary" style="flex: 1;">Editar perfil</button>
+                        <button class="btn btn-secondary" style="flex: 1;">Cambiar contraseña</button>
+                    </div>
+
+                    <button class="btn" style="width: 100%; margin-top: 1rem; background: #f5f5f5; color: var(--text-dark);">Cerrar sesión</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="pie">
+        <div class="contenedor">
+            <div class="pie-content">
+                <div class="pie-section">
+                    <h4>Turnero Med</h4>
+                    <ul>
+                        <li><a href="#">Sobre nosotros</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Contacto</a></li>
+                    </ul>
+                </div>
+                <div class="pie-section">
+                    <h4>Servicios</h4>
+                    <ul>
+                        <li><a href="#">Agendar cita</a></li>
+                        <li><a href="#">Mis citas</a></li>
+                        <li><a href="#">Especialidades</a></li>
+                    </ul>
+                </div>
+                <div class="pie-section">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="#">Privacidad</a></li>
+                        <li><a href="#">Términos de uso</a></li>
+                        <li><a href="#">Cookies</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pie-bottom">
+                <p>&copy; 2024 Turnero Med. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function mostrarVista(vista) {
+            document.querySelectorAll('.view-container').forEach(v => {
+                v.classList.remove('active');
+            });
+
+            const elemento = document.getElementById(vista);
+            if (elemento) {
+                elemento.classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            document.querySelectorAll('.nav-buttons button').forEach((btn, i) => {
+                btn.classList.remove('active');
+            });
+
+            const botones = document.querySelectorAll('.nav-buttons button');
+            const indice = ['home', 'especialidades', 'detalle-especialidad', 'agendar', 'mis-citas', 'perfil'].indexOf(vista);
+            if (indice >= 0 && botones[indice]) {
+                botones[indice].classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>
+</body></html>
