@@ -97,11 +97,3 @@ Front (front-turnero-med/src/):
   lib/api.js
   pages/Acceso.jsx
   pages/MedicosAdmin.jsx
-
-
-A TENER EN CUENTA
-
-- Después de traer estos cambios hay que reiniciar el back.
-- No se agregaron librerías ni tests.
-- El administrador se sigue creando como antes: admin@turnero.local en el
-  perfil local, o con ADMIN_EMAIL / ADMIN_PASSWORD en el perfil mysql.
