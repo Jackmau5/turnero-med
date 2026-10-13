@@ -1,4 +1,4 @@
-import { Link, NavLink, Route, Routes, useNavigate } from "react-router-dom";
+import { Link, NavLink, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import Listado from "./components/Listado.jsx";
 import DetalleConsulta from "./components/DetalleConsulta.jsx";
 import RutaProtegida from "./components/RutaProtegida.jsx";
@@ -12,7 +12,9 @@ import MedicosAdmin from "./pages/MedicosAdmin.jsx";
 import PacientesAdmin from "./pages/PacientesAdmin.jsx";
 
 function Inicio() {
+  const location = useLocation();
   return <>
+    {location.state?.aviso && <p className="error" role="alert">{location.state.aviso}</p>}
     <section className="introduccion" aria-labelledby="titulo">
       <p className="etiqueta">TURNERO MÉDICO</p>
       <h1 id="titulo">Tu salud, en buenas manos.</h1>
@@ -67,7 +69,7 @@ export default function App() {
           <Route path="/perfil" element={<Perfil />} />
         </Route>
         <Route element={<RutaProtegida roles={["MEDICO", "ADMIN"]} />}><Route path="/agenda" element={<Agenda />} /></Route>
-        <Route element={<RutaProtegida roles={["ADMIN"]} />}>
+        <Route element={<RutaProtegida roles={["ADMIN"]} avisoSinPermiso="No tenés permisos" />}>
           <Route path="/admin/medicos" element={<MedicosAdmin />} />
           <Route path="/admin/pacientes" element={<PacientesAdmin />} />
         </Route>

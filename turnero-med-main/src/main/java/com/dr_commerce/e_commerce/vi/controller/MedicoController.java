@@ -2,6 +2,7 @@ package com.dr_commerce.e_commerce.vi.controller;
 
 import com.dr_commerce.e_commerce.vi.dto.MedicoRequestDto;
 import com.dr_commerce.e_commerce.vi.dto.MedicoResponseDto;
+import com.dr_commerce.e_commerce.vi.model.Especialidad;
 import com.dr_commerce.e_commerce.vi.service.MedicoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,10 +28,23 @@ public class MedicoController {
     public MedicoController(MedicoService medicoService) {
         this.medicoService = medicoService;
     }
-    // Obtiene todos los médicos y los devuelve en una respuesta HTTP.
+    // Obtiene los médicos activos y los devuelve en una respuesta HTTP.
     @GetMapping
     public ResponseEntity<List<MedicoResponseDto>> obtenerTodos() {
         return ResponseEntity.ok(medicoService.obtenerTodos());
+    }
+
+    // Listado completo (activos e inactivos) para el panel de administración.
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/todos")
+    public ResponseEntity<List<MedicoResponseDto>> obtenerTodosConInactivos() {
+        return ResponseEntity.ok(medicoService.obtenerTodosConInactivos());
+    }
+
+    // Devuelve los valores del enum para que el front no los tenga escritos fijos.
+    @GetMapping("/especialidades")
+    public ResponseEntity<Especialidad[]> obtenerEspecialidades() {
+        return ResponseEntity.ok(Especialidad.values());
     }
 
     @GetMapping("/{id}")
@@ -54,6 +68,18 @@ public class MedicoController {
     public ResponseEntity<MedicoResponseDto> actualizar(@PathVariable Long id,
                                                           @RequestBody MedicoRequestDto request) {
         return ResponseEntity.ok(medicoService.actualizar(id, request));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/{id}/desactivar")
+    public ResponseEntity<MedicoResponseDto> desactivar(@PathVariable Long id) {
+        return ResponseEntity.ok(medicoService.desactivar(id));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/{id}/reactivar")
+    public ResponseEntity<MedicoResponseDto> reactivar(@PathVariable Long id) {
+        return ResponseEntity.ok(medicoService.reactivar(id));
     }
 
     @PreAuthorize("hasRole('ADMIN')")

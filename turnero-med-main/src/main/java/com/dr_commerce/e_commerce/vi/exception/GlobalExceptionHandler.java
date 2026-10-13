@@ -5,6 +5,7 @@ import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -22,6 +23,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> invalido(IllegalArgumentException e) { return error(400, e.getMessage()); }
     @ExceptionHandler(ConflictoException.class)
     public ResponseEntity<?> conflicto(ConflictoException e) { return error(409, e.getMessage()); }
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<?> desactivado(DisabledException e) { return error(401, "La cuenta está desactivada. Consultá con el administrador"); }
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<?> autenticacion(AuthenticationException e) { return error(401, "Email o contraseña incorrectos"); }
     @ExceptionHandler(AccessDeniedException.class)

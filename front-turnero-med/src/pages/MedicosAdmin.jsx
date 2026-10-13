@@ -1,18 +1,21 @@
 import { useCallback, useEffect, useState } from "react";
-import { api, especialidades } from "../lib/api.js";
+import { api, nombreEspecialidad } from "../lib/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
 
-const vacio = { nombre: "", apellido: "", email: "", password: "", matricula: "", especialidad: "CARDIOLOGIA" };
+const vacio = { nombre: "", apellido: "", email: "", password: "", matricula: "", especialidad: "" };
 export default function MedicosAdmin() {
   const { usuario } = useAuth();
   const [medicos, setMedicos] = useState([]);
+  const [listaEspecialidades, setListaEspecialidades] = useState([]);
   const [form, setForm] = useState(vacio);
   const [editando, setEditando] = useState(null);
   const [error, setError] = useState("");
   const [aviso, setAviso] = useState("");
   const [ocupado, setOcupado] = useState(false);
-  const cargar = useCallback(() => api("/medicos").then(setMedicos).catch((e) => setError(e.message)), []);
+  const cargar = useCallback(() => api("/medicos/todos", { token: usuario.token }).then(setMedicos).catch((e) => setError(e.message)), [usuario.token]);
   useEffect(() => { cargar(); }, [cargar]);
+  // Las especialidades vienen del back: si se agrega una al enum, aparece sola.
+  useEffect(() => { api("/medicos/especialidades").then(setListaEspecialidades).catch((e) => setError(e.message)); }, []);
   async function guardar(e) {
     e.preventDefault(); setOcupado(true); setError(""); setAviso("");
     try {
@@ -22,10 +25,16 @@ export default function MedicosAdmin() {
     } catch (e) { setError(e.message); }
     finally { setOcupado(false); }
   }
-  async function eliminar(m) {
-    if (!window.confirm(`¿Eliminar a ${m.nombre} ${m.apellido}? Solo se podrá si no tiene turnos relacionados.`)) return;
+  async function desactivar(m) {
+    if (!window.confirm(`¿Desactivar a ${m.nombre} ${m.apellido}? Se cancelarán sus turnos pendientes (disponibles, en carrito y confirmados que todavía no ocurrieron) y no podrá iniciar sesión.`)) return;
     setOcupado(true); setError(""); setAviso("");
-    try { await api(`/medicos/${m.id}`, { token: usuario.token, method: "DELETE" }); await cargar(); setAviso("Médico eliminado."); }
+    try { await api(`/medicos/${m.id}/desactivar`, { token: usuario.token, method: "POST" }); await cargar(); setAviso("Médico desactivado. Sus turnos pendientes fueron cancelados."); }
+    catch (e) { setError(e.message); }
+    finally { setOcupado(false); }
+  }
+  async function reactivar(m) {
+    setOcupado(true); setError(""); setAviso("");
+    try { await api(`/medicos/${m.id}/reactivar`, { token: usuario.token, method: "POST" }); await cargar(); setAviso("Médico reactivado. Los turnos cancelados no se restauran."); }
     catch (e) { setError(e.message); }
     finally { setOcupado(false); }
   }
@@ -36,14 +45,15 @@ export default function MedicosAdmin() {
       <label>Apellido<input required value={form.apellido} onChange={(e) => setForm({ ...form, apellido: e.target.value })} /></label></div>
       <label>Email<input type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></label>
       <div className="dos-columnas"><label>Matrícula<input required value={form.matricula} onChange={(e) => setForm({ ...form, matricula: e.target.value })} /></label>
-      <label>Especialidad<select value={form.especialidad} onChange={(e) => setForm({ ...form, especialidad: e.target.value })}>{Object.entries(especialidades).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label></div>
+      <label>Especialidad<select required value={form.especialidad} onChange={(e) => setForm({ ...form, especialidad: e.target.value })}><option value="">Elegí una especialidad</option>{listaEspecialidades.map((k) => <option key={k} value={k}>{nombreEspecialidad(k)}</option>)}</select></label></div>
       <label>Contraseña {editando && "(dejar vacía para conservarla)"}<input type="password" minLength="8" required={!editando} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /></label>
       <div className="acciones"><button className="boton" disabled={ocupado}>{ocupado ? "Guardando…" : editando ? "Guardar cambios" : "Crear médico"}</button>
         {editando && <button type="button" className="boton-secundario" onClick={() => { setEditando(null); setForm(vacio); }}>Cancelar edición</button>}</div>
     </form>
     <h2>Profesionales registrados</h2>
-    <div className="lista-paneles">{medicos.map((m) => <article className="panel fila" key={m.id}><div><h3>{m.nombre} {m.apellido}</h3><p>{especialidades[m.especialidad]} · Matrícula {m.matricula}</p><p>{m.email}</p></div>
+    <div className="lista-paneles">{medicos.map((m) => <article className="panel fila" key={m.id}><div><span className={m.activo ? "estado" : "estado estado-cancelado"}>{m.activo ? "Activo" : "Inactivo"}</span><h3>{m.nombre} {m.apellido}</h3><p>{nombreEspecialidad(m.especialidad)} · Matrícula {m.matricula}</p><p>{m.email}</p></div>
       <div className="acciones"><button className="boton-secundario" onClick={() => { setEditando(m.id); setForm({ ...m, password: "" }); window.scrollTo({ top: 0, behavior: "smooth" }); }}>Editar</button>
-        <button className="boton-secundario" disabled={ocupado} onClick={() => eliminar(m)}>Eliminar</button></div></article>)}</div>
+        {m.activo ? <button className="boton-secundario" disabled={ocupado} onClick={() => desactivar(m)}>Desactivar</button> :
+          <button className="boton-secundario" disabled={ocupado} onClick={() => reactivar(m)}>Reactivar</button>}</div></article>)}</div>
   </section>;
 }

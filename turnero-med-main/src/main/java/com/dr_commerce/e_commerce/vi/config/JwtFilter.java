@@ -53,8 +53,8 @@ public class JwtFilter extends OncePerRequestFilter {
             // 6. Cargar el usuario desde la base de datos
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
-            // 7. Validar el token
-            if (jwtUtil.validarToken(token, userDetails)) {
+            // 7. Validar el token y que la cuenta siga habilitada (un médico desactivado no pasa)
+            if (jwtUtil.validarToken(token, userDetails) && userDetails.isEnabled()) {
 
                 // 8. Crear el objeto de autenticación y setearlo en el contexto
                 UsernamePasswordAuthenticationToken authToken =

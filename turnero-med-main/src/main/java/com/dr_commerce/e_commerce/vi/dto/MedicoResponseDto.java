@@ -14,4 +14,5 @@ public class MedicoResponseDto {
     private final String email;
     private final String matricula;
     private final Especialidad especialidad;
+    private final boolean activo;
 }

@@ -20,7 +20,7 @@ export default function Acceso({ registro = false }) {
       guardarSesion(usuario);
       const destino = location.state?.from;
       navigate(destino && destino.startsWith("/") && !destino.startsWith("//") ? destino :
-        usuario.rol === "PACIENTE" ? "/" : "/agenda", { replace: true });
+        usuario.rol === "PACIENTE" ? "/" : usuario.rol === "ADMIN" ? "/admin/medicos" : "/agenda", { replace: true });
     } catch (e) { setError(e.message); }
     finally { setEnviando(false); }
   }

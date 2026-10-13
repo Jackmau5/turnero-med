@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 public interface MedicoRepository extends JpaRepository<Medico, Long> {
 
     boolean existsByMatricula(String matricula);
+
+    java.util.List<Medico> findByActivoTrue();
     @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     @org.springframework.data.jpa.repository.Query("select e from Medico e where e.id = :id")
     java.util.Optional<Medico> buscarConBloqueo(@org.springframework.data.repository.query.Param("id") Long id);

@@ -53,6 +53,7 @@ public class TurnoService {
         acceso.exigirGestionMedico(request.getMedicoId());
         Medico medico = medicos.buscarConBloqueo(request.getMedicoId())
                 .orElseThrow(() -> new MedicoNotFoundException(request.getMedicoId()));
+        if (!medico.isActivo()) throw new ConflictoException("No se pueden publicar horarios de un médico desactivado");
         validarHorarioUnico(request, -1L);
         Turno turno = new Turno();
         completar(turno, request, medico);
@@ -96,6 +97,8 @@ public class TurnoService {
         if (turno.getEstado() != EstadoTurno.TOMADO || !esFuturo(turno))
             throw new ConflictoException("Solo podés cancelar turnos confirmados que todavía no comenzaron");
         turno.setEstado(EstadoTurno.CANCELADO);
+        // Un médico desactivado no vuelve a ofrecer el horario.
+        if (!turno.getMedico().isActivo()) return DtoMapper.turno(turno);
         Turno nuevo = new Turno();
         nuevo.setMedico(turno.getMedico());
         nuevo.setFecha(new Fecha(turno.getFecha().getDia(), turno.getFecha().getHora()));

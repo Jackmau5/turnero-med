@@ -3,8 +3,11 @@ package com.dr_commerce.e_commerce.vi.service;
 import com.dr_commerce.e_commerce.vi.dto.MedicoRequestDto;
 import com.dr_commerce.e_commerce.vi.dto.MedicoResponseDto;
 import com.dr_commerce.e_commerce.vi.exception.MedicoNotFoundException;
+import com.dr_commerce.e_commerce.vi.model.EstadoTurno;
 import com.dr_commerce.e_commerce.vi.model.Medico;
+import com.dr_commerce.e_commerce.vi.model.Turno;
 import com.dr_commerce.e_commerce.vi.repository.MedicoRepository;
+import com.dr_commerce.e_commerce.vi.repository.TurnoRepository;
 import com.dr_commerce.e_commerce.vi.repository.UsuarioRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,17 +23,24 @@ public class MedicoService {
 
     private final MedicoRepository medicoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final TurnoRepository turnoRepository;
     private final PasswordEncoder passwordEncoder;
 
     public MedicoService(MedicoRepository medicoRepository, UsuarioRepository usuarioRepository,
-            PasswordEncoder passwordEncoder) {
+            TurnoRepository turnoRepository, PasswordEncoder passwordEncoder) {
         this.medicoRepository = medicoRepository;
         this.usuarioRepository = usuarioRepository;
+        this.turnoRepository = turnoRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
-    // Obtiene todos los médicos y los convierte a DTO.
+    // Obtiene los médicos activos y los convierte a DTO.
     public List<MedicoResponseDto> obtenerTodos() {
+        return medicoRepository.findByActivoTrue().stream().map(this::aResponseDto).toList();
+    }
+
+    // Obtiene todos los médicos, activos e inactivos, para el panel de administración.
+    public List<MedicoResponseDto> obtenerTodosConInactivos() {
         return medicoRepository.findAll().stream().map(this::aResponseDto).toList();
     }
 
@@ -68,6 +78,34 @@ public class MedicoService {
         return aResponseDto(medicoRepository.save(medico));
     }
 
+    // Desactiva un médico sin borrarlo y cancela sus turnos pendientes en la misma transacción.
+    @Transactional
+    public MedicoResponseDto desactivar(Long id) {
+        Medico medico = medicoRepository.buscarConBloqueo(id)
+                .orElseThrow(() -> new MedicoNotFoundException(id));
+        medico.setActivo(false);
+        List<Turno> pendientes = turnoRepository.buscarPorMedicoYEstadosConBloqueo(id,
+                List.of(EstadoTurno.DISPONIBLE, EstadoTurno.RESERVADO, EstadoTurno.TOMADO));
+        for (Turno turno : pendientes) {
+            // Las consultas confirmadas que ya pasaron quedan en el historial sin cambios.
+            if (turno.getEstado() == EstadoTurno.TOMADO && !TurnoService.esFuturo(turno)) continue;
+            // Un turno reservado está en el carrito de un paciente: se quita para no trabar su confirmación.
+            // Uno confirmado conserva paciente y carrito para que siga en su historial como cancelado.
+            if (turno.getEstado() == EstadoTurno.RESERVADO) turno.setCarrito(null);
+            turno.setEstado(EstadoTurno.CANCELADO);
+        }
+        return aResponseDto(medico);
+    }
+
+    // Reactiva un médico. Los turnos cancelados al desactivarlo no se restauran.
+    @Transactional
+    public MedicoResponseDto reactivar(Long id) {
+        Medico medico = medicoRepository.buscarConBloqueo(id)
+                .orElseThrow(() -> new MedicoNotFoundException(id));
+        medico.setActivo(true);
+        return aResponseDto(medico);
+    }
+
     // Elimina un médico por su ID.
     @Transactional
     public void eliminar(Long id) {
@@ -103,6 +141,7 @@ public class MedicoService {
                 medico.getApellido(),
                 medico.getEmail(),
                 medico.getMatricula(),
-                medico.getEspecialidad());
+                medico.getEspecialidad(),
+                medico.isActivo());
     }
 }

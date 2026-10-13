@@ -44,6 +44,11 @@ export const especialidades = {
   PSIQUIATRIA: "Psiquiatría",
 };
 
+// Nombre para mostrar. Una especialidad nueva del back sin nombre cargado se muestra tal cual llega.
+export function nombreEspecialidad(clave) {
+  return especialidades[clave] || clave;
+}
+
 export const pesos = new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 2 });
 
 export function hoyISO() {

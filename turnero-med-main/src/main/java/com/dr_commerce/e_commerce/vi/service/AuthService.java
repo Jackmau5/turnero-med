@@ -6,6 +6,7 @@ import com.dr_commerce.e_commerce.vi.model.*;
 import com.dr_commerce.e_commerce.vi.repository.*;
 import com.dr_commerce.e_commerce.vi.exception.ConflictoException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +46,7 @@ public class AuthService {
                 .orElseThrow(() -> new BadCredentialsException("Credenciales inválidas"));
         if (!encoder.matches(request.getPassword(), usuario.getPassword()))
             throw new BadCredentialsException("Credenciales inválidas");
+        if (!usuario.isEnabled()) throw new DisabledException("Cuenta desactivada");
         return respuesta(usuario);
     }
     private UsuarioResponseDto respuesta(Usuario usuario) {

@@ -1,0 +1,107 @@
+CHANGELOG - Turnero Med
+=======================
+
+Rama feature/panel-admin (12/10/2026)
+-------------------------------------
+Panel de administración de médicos: los médicos ahora tienen un estado
+(activo / inactivo) y el ADMIN puede listarlos, darlos de alta, editarlos,
+desactivarlos y reactivarlos.
+
+
+QUÉ CAMBIA PARA CADA ROL
+
+- ADMIN: al iniciar sesión entra directo a /admin/medicos (antes iba a /agenda).
+- PACIENTE y MEDICO: entran igual que antes. Si escriben una URL del panel
+  (/admin/...), vuelven al inicio con el mensaje "No tenés permisos".
+- MEDICO desactivado: no puede iniciar sesión y, si ya tenía la sesión
+  abierta, su token deja de funcionar.
+
+
+BASE DE DATOS
+
+- Columna nueva "activo" en la tabla "medicos", con valor por defecto true.
+  Hibernate la crea sola al arrancar el back (ddl-auto=update). Los médicos
+  que ya estaban cargados quedan activos. No hay que correr ningún script.
+
+
+ENDPOINTS NUEVOS
+
+  GET  /api/medicos/especialidades     Público. Devuelve los valores del enum
+                                       Especialidad.
+  GET  /api/medicos/todos              Solo ADMIN. Médicos activos e inactivos.
+  POST /api/medicos/{id}/desactivar    Solo ADMIN. Baja lógica (no borra).
+  POST /api/medicos/{id}/reactivar     Solo ADMIN.
+
+Sin token responden 401; con token de PACIENTE o MEDICO, 403.
+
+
+ENDPOINTS QUE CAMBIARON
+
+- GET /api/medicos: ahora devuelve solo los médicos activos.
+- Todas las respuestas de médico incluyen el campo "activo" (true/false).
+- POST /api/auth/login: un médico inactivo recibe 401 con el mensaje
+  "La cuenta está desactivada. Consultá con el administrador".
+- POST /api/turnos: responde 409 si el médico está desactivado.
+- POST /api/turnos/{id}/cancelar: si el médico está desactivado, el horario
+  no se vuelve a ofrecer.
+
+Sin cambios: POST /api/medicos (alta), PUT /api/medicos/{id} (edición),
+DELETE /api/medicos/{id} y POST /api/auth/register.
+
+
+QUÉ PASA AL DESACTIVAR UN MÉDICO
+
+Todo ocurre en una sola transacción:
+- El médico queda inactivo. No se borra de la base.
+- Turnos DISPONIBLE  -> CANCELADO.
+- Turnos RESERVADO   -> CANCELADO, y además salen del carrito del paciente
+                        para que pueda confirmar el resto de su carrito.
+- Turnos TOMADO que todavía no ocurrieron -> CANCELADO. El paciente los sigue
+                        viendo en "Mis turnos", como cancelados.
+- Los turnos TOMADO que ya pasaron y los que ya estaban CANCELADO no se tocan.
+
+Al reactivar, el médico vuelve a listarse y puede iniciar sesión. Los turnos
+cancelados NO se restauran: hay que publicar horarios nuevos.
+
+
+FRONT
+
+- Panel /admin/medicos:
+    - cada médico muestra la etiqueta "Activo" o "Inactivo";
+    - botones "Desactivar" (pide confirmación avisando que se cancelan los
+      turnos) y "Reactivar", en lugar del botón "Eliminar";
+    - las especialidades del formulario se piden al back. Si se agrega un
+      valor al enum Especialidad, aparece solo en el desplegable. Para que se
+      vea con nombre prolijo hay que agregarlo también en src/lib/api.js; si
+      no, se muestra tal cual viene del enum.
+
+
+ARCHIVOS MODIFICADOS
+
+Back (turnero-med-main/src/main/java/com/dr_commerce/e_commerce/vi/):
+  model/Medico.java
+  dto/MedicoResponseDto.java
+  repository/MedicoRepository.java
+  repository/TurnoRepository.java
+  service/MedicoService.java
+  service/TurnoService.java
+  service/AuthService.java
+  controller/MedicoController.java
+  config/SecurityConfig.java
+  config/JwtFilter.java
+  exception/GlobalExceptionHandler.java
+
+Front (front-turnero-med/src/):
+  App.jsx
+  components/RutaProtegida.jsx
+  lib/api.js
+  pages/Acceso.jsx
+  pages/MedicosAdmin.jsx
+
+
+A TENER EN CUENTA
+
+- Después de traer estos cambios hay que reiniciar el back.
+- No se agregaron librerías ni tests.
+- El administrador se sigue creando como antes: admin@turnero.local en el
+  perfil local, o con ADMIN_EMAIL / ADMIN_PASSWORD en el perfil mysql.

@@ -19,6 +19,9 @@ public interface TurnoRepository extends JpaRepository<Turno, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select t from Turno t where t.id = :id")
     Optional<Turno> buscarConBloqueo(@Param("id") Long id);
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select t from Turno t where t.medico.id = :medicoId and t.estado in :estados order by t.id")
+    List<Turno> buscarPorMedicoYEstadosConBloqueo(@Param("medicoId") Long medicoId, @Param("estados") List<EstadoTurno> estados);
 
     @Query("select t from Turno t where (:especialidad is null or t.medico.especialidad = :especialidad) " +
            "and (:medicoId is null or t.medico.id = :medicoId) " +
