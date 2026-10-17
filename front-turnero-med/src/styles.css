@@ -326,3 +326,8 @@ button:disabled { opacity: .6; cursor: not-allowed; }
     gap: 6px;
   }
 }
+
+.favorito { border: 0; background: transparent; color: #9aa9a1; font-size: 20px; line-height: 1; padding: 2px 4px; cursor: pointer; }
+.favorito:hover, .favorito.activo { color: #d49a1c; }
+.contador { display: inline-block; margin-left: 6px; min-width: 18px; padding: 1px 6px; border-radius: 9px; background: #176455; color: #fff; font-size: 11px; text-align: center; }
+.tarjeta-superior .numero { margin-left: auto; }

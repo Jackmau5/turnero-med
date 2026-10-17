@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { especialidades, fechaLegible, pesos } from "../lib/api.js";
+import BotonFavorito from "./BotonFavorito.jsx";
 
 export default function Tarjeta({ turno }) {
   return (
@@ -7,6 +8,7 @@ export default function Tarjeta({ turno }) {
       <div className="tarjeta-superior">
         <span className="especialidad">{especialidades[turno.especialidad] || turno.especialidad}</span>
         <span className="numero">#{turno.id}</span>
+        <BotonFavorito medico={{ id: turno.medicoId, nombre: turno.medicoNombre, especialidad: turno.especialidad }} />
       </div>
       <h3>{turno.medicoNombre}</h3>
       <p className="tarjeta-descripcion">{fechaLegible(turno)}</p>

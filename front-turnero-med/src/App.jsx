@@ -10,6 +10,9 @@ import Perfil from "./pages/Perfil.jsx";
 import Agenda from "./pages/Agenda.jsx";
 import MedicosAdmin from "./pages/MedicosAdmin.jsx";
 import PacientesAdmin from "./pages/PacientesAdmin.jsx";
+import Favoritos from "./pages/Favoritos.jsx";
+import { useSelector } from "react-redux";
+import { selectCantidadFavoritos } from "./store/favoritosSlice.js";
 
 function Inicio() {
   const location = useLocation();
@@ -31,12 +34,14 @@ function PaginaNoEncontrada() {
 function Navegacion() {
   const { usuario, cerrarSesion } = useAuth();
   const navigate = useNavigate();
+  const cantidadFavoritos = useSelector(selectCantidadFavoritos);
   const enlace = ({ isActive }) => isActive ? "nav-enlace activo" : "nav-enlace";
   function salir() { cerrarSesion(); navigate("/", { replace: true }); }
   return <header className="encabezado"><div className="contenedor cabecera">
     <Link className="marca-enlace" to="/"><span className="marca-icono" aria-hidden="true">+</span><span>Turnero <strong>Med</strong></span></Link>
     <nav className="navegacion" aria-label="Navegación principal">
       <NavLink className={enlace} to="/" end>Horarios</NavLink>
+      <NavLink className={enlace} to="/favoritos">Favoritos{cantidadFavoritos > 0 && <span className="contador">{cantidadFavoritos}</span>}</NavLink>
       {usuario?.rol === "PACIENTE" && <>
         <NavLink className={enlace} to="/carrito">Carrito</NavLink>
         <NavLink className={enlace} to="/mis-turnos">Mis turnos</NavLink>
@@ -61,6 +66,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Inicio />} />
         <Route path="/consultas/:id" element={<DetalleConsulta />} />
+        <Route path="/favoritos" element={<Favoritos />} />
         <Route path="/ingresar" element={<Acceso />} />
         <Route path="/registro" element={<Acceso registro />} />
         <Route element={<RutaProtegida roles={["PACIENTE"]} />}>
