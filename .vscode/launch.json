@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "▶ Iniciar Backend (Spring Boot)",
+      "request": "launch",
+      "mainClass": "com.dr_commerce.e_commerce.vi.Application",
+      "projectName": "e-commerce.vi",
+      "cwd": "${workspaceFolder}/turnero-med-main"
+    }
+  ]
+}
