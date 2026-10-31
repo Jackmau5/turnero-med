@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { api, especialidades, fechaLegible, pesos } from "../lib/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
-import { fetchCart } from "../features/cart/cartSlice.js";
+import { fetchCart, removeFromCart } from "../features/cart/cartSlice.js";
 
 export default function Carrito() {
   const { usuario } = useAuth();
@@ -35,6 +35,17 @@ export default function Carrito() {
     } finally { setOcupado(false); }
   }
 
+  async function quitar(turnoId) {
+    setOcupado(true); setError(""); setAviso("");
+    try {
+      await dispatch(removeFromCart({ carritoId: carrito.id, turnoId, token: usuario.token })).unwrap();
+      setAviso("Turno quitado del carrito.");
+    } catch (e) {
+      setError(e.message);
+      if (e.status === 409 && e.message.includes("venció")) await cargar().catch(() => {});
+    } finally { setOcupado(false); }
+  }
+
   if (fetchStatus === "loading" && !carrito) return <p className="mensaje">Cargando carrito…</p>;
   return <section className="pagina">
     <p className="etiqueta">TU SELECCIÓN</p><h1>Carrito de turnos</h1>
@@ -47,7 +58,7 @@ export default function Carrito() {
           <div><span className="especialidad">{especialidades[turno.especialidad]}</span><h2>{turno.medicoNombre}</h2>
             <p>{fechaLegible(turno)} · {turno.direccion.calle} {turno.direccion.altura}</p>
             <strong>{pesos.format(turno.precio)}</strong></div>
-          <button className="boton-secundario" disabled={ocupado} onClick={() => accion("DELETE", `/carritos/${carrito.id}/turnos/${turno.id}`, "Turno quitado del carrito.")}>Quitar</button>
+          <button className="boton-secundario" disabled={ocupado} onClick={() => quitar(turno.id)}>Quitar</button>
         </article>)}</div>
         <div className="panel resumen"><span>Total de la reserva</span><strong>{pesos.format(carrito.total)}</strong></div>
         <div className="acciones">

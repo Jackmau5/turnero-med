@@ -18,10 +18,21 @@ export const addToCart = createAsyncThunk(
   },
 );
 
+export const removeFromCart = createAsyncThunk(
+  "cart/removeFromCart",
+  async ({ carritoId, turnoId, token }, { signal }) =>
+    api(`/carritos/${carritoId}/turnos/${turnoId}`, {
+      token,
+      method: "DELETE",
+      signal,
+    }),
+);
+
 const initialState = {
   carrito: null,
   fetchStatus: "idle",
   addStatus: "idle",
+  removeStatus: "idle",
   error: null,
 };
 
@@ -59,6 +70,18 @@ const cartSlice = createSlice({
       .addCase(addToCart.rejected, (state, action) => {
         state.addStatus = "failed";
         state.error = action.error.message || "No se pudo agregar el turno al carrito.";
+      })
+      .addCase(removeFromCart.pending, (state) => {
+        state.removeStatus = "loading";
+        state.error = null;
+      })
+      .addCase(removeFromCart.fulfilled, (state, action) => {
+        state.removeStatus = "succeeded";
+        state.carrito = action.payload;
+      })
+      .addCase(removeFromCart.rejected, (state, action) => {
+        state.removeStatus = "failed";
+        state.error = action.error.message || "No se pudo quitar el turno del carrito.";
       });
   },
 });

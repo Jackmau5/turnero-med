@@ -55,10 +55,12 @@ public class CarritoService {
     public CarritoResponseDto agregarTurno(Long id, Long turnoId) {
         Carrito carrito = abiertoPropio(id);
         Turno turno = bloquearTurno(turnoId);
+        if (turno.getCarrito() != null && carrito.getId().equals(turno.getCarrito().getId()))
+            throw new ConflictoException("Ese turno ya está en tu carrito");
         if (turno.getEstado() != EstadoTurno.DISPONIBLE || !TurnoService.esFuturo(turno))
-            throw new ConflictoException("El turno no está disponible o su fecha ya pasó");
+            throw new ConflictoException("Turno no disponible");
         if (turnos.contarCoincidencias(carrito.getPaciente().getId(), turno.getFecha().getDia(), turno.getFecha().getHora()) > 0)
-            throw new ConflictoException("Ya tenés un turno en ese día y horario");
+            throw new ConflictoException("Ya tenés un turno reservado en ese mismo día y horario");
         turno.setEstado(EstadoTurno.RESERVADO);
         turno.setCarrito(carrito);
         return respuesta(carrito);
