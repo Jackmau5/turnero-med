@@ -32,7 +32,6 @@ a { color: #176455; }
 .navegacion { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px 16px; }
 .nav-enlace { color: #52675e; text-decoration: none; font-size: 14px; font-weight: 600; }
 .nav-enlace:hover, .nav-enlace.activo { color: #176455; text-decoration: underline; text-underline-offset: 5px; }
-.insignia { display: inline-block; min-width: 18px; margin-left: 6px; padding: 1px 6px; border-radius: 999px; background: #176455; color: #fff; font-size: 11px; font-weight: 700; line-height: 16px; text-align: center; text-decoration: none; }
 .nav-usuario { font-size: 13px; color: #65766c; border-left: 1px solid #dce5de; padding-left: 16px; }
 .salir { border: 0; background: transparent; color: #176455; font-weight: 700; }
 .contenido { min-height: 70vh; }
@@ -265,9 +264,6 @@ input, select { width: 100%; min-height: 42px; padding: 8px 12px; border: 1px so
 input:focus, select:focus { outline: 2px solid #80bba4; outline-offset: 1px; }
 .dos-columnas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .filtros { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; align-items: end; gap: 14px; background: #fff; border: 1px solid #dce5de; border-radius: 14px; padding: 18px; margin-bottom: 24px; }
-.filtro-busqueda { grid-column: 1 / -1; }
-.buscador { display: flex; align-items: end; gap: 10px; }
-.buscador label { flex: 1; }
 .filtros-compactos, .acciones { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .filtros-compactos select { width: auto; min-width: 170px; }
 .boton, .boton-secundario { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 9px 16px; border: 1px solid #176455; border-radius: 8px; font-weight: 700; text-decoration: none; }

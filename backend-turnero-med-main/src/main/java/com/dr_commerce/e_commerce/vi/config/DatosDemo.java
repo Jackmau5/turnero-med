@@ -38,10 +38,13 @@ public class DatosDemo implements CommandLineRunner {
             medico.setEmail("medico@turnero.local"); medico.setPassword(encoder.encode("MedicoDemo123!"));
             medico.setRol(Rol.MEDICO); medico.setMatricula("DEMO-001");
             medico.setEspecialidad(Especialidad.CARDIOLOGIA); medicos.save(medico);
+            // Se dejan los horarios de demostración un año adelante para que sigan
+            // disponibles durante las próximas presentaciones del proyecto.
+            LocalDate fechaDemostracion = LocalDate.now().plusYears(1);
             for (int hora = 9; hora <= 11; hora++) {
                 Turno turno = new Turno();
                 turno.setMedico(medico);
-                turno.setFecha(new Fecha(LocalDate.now().plusDays(1), LocalTime.of(hora, 0)));
+                turno.setFecha(new Fecha(fechaDemostracion, LocalTime.of(hora, 0)));
                 turno.setDireccion(new Direccion("Consultorio de ejemplo", 123, "Buenos Aires", "1000"));
                 turno.setEstado(EstadoTurno.DISPONIBLE); turno.setPrecio(new BigDecimal("25000.00"));
                 turnos.save(turno);

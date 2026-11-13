@@ -1,6 +1,5 @@
 package com.dr_commerce.e_commerce.vi.service;
 
-import com.dr_commerce.e_commerce.vi.config.JwtUtil;
 import com.dr_commerce.e_commerce.vi.dto.*;
 import com.dr_commerce.e_commerce.vi.model.*;
 import com.dr_commerce.e_commerce.vi.repository.*;
@@ -15,12 +14,11 @@ public class AuthService {
     private final UsuarioRepository usuarios;
     private final PacienteRepository pacientes;
     private final PasswordEncoder encoder;
-    private final JwtUtil jwt;
-    public AuthService(UsuarioRepository usuarios, PacienteRepository pacientes, PasswordEncoder encoder, JwtUtil jwt) {
-        this.usuarios = usuarios; this.pacientes = pacientes; this.encoder = encoder; this.jwt = jwt;
+    public AuthService(UsuarioRepository usuarios, PacienteRepository pacientes, PasswordEncoder encoder) {
+        this.usuarios = usuarios; this.pacientes = pacientes; this.encoder = encoder;
     }
     @Transactional
-    public UsuarioResponseDto register(UsuarioAddRequestDto request) {
+    public Usuario register(UsuarioAddRequestDto request) {
         if (request.getRol() != null && request.getRol() != Rol.PACIENTE)
             throw new IllegalArgumentException("El registro público solo permite pacientes");
         String email = Validaciones.email(request.getEmail());
@@ -34,10 +32,10 @@ public class AuthService {
         paciente.setDni(dni);
         paciente.setPassword(encoder.encode(Validaciones.password(request.getPassword())));
         paciente.setRol(Rol.PACIENTE);
-        return respuesta(pacientes.save(paciente));
+        return pacientes.save(paciente);
     }
     @Transactional(readOnly = true)
-    public UsuarioResponseDto login(UsuarioRequestDto request) {
+    public Usuario login(UsuarioRequestDto request) {
         String email = Validaciones.email(request.getEmail());
         if (request.getPassword() == null || request.getPassword().isBlank())
             throw new IllegalArgumentException("La contraseña es obligatoria");
@@ -45,17 +43,6 @@ public class AuthService {
                 .orElseThrow(() -> new BadCredentialsException("Credenciales inválidas"));
         if (!encoder.matches(request.getPassword(), usuario.getPassword()))
             throw new BadCredentialsException("Credenciales inválidas");
-        return respuesta(usuario);
-    }
-    /** Datos del usuario autenticado (sin token), para restaurar la sesión desde la cookie. */
-    @Transactional(readOnly = true)
-    public UsuarioResponseDto actual(String email) {
-        Usuario u = usuarios.findByEmail(email)
-                .orElseThrow(() -> new BadCredentialsException("Sesión inválida"));
-        return new UsuarioResponseDto(u.getId(), u.getNombre(), u.getApellido(), u.getEmail(), u.getRol(), null);
-    }
-    private UsuarioResponseDto respuesta(Usuario usuario) {
-        return new UsuarioResponseDto(usuario.getId(), usuario.getNombre(), usuario.getApellido(),
-                usuario.getEmail(), usuario.getRol(), jwt.generarToken(usuario));
+        return usuario;
     }
 }

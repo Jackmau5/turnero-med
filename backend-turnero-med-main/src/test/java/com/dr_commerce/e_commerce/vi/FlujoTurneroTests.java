@@ -54,32 +54,48 @@ class FlujoTurneroTests {
         dia = LocalDate.now().plusDays(3);
     }
     Res request(String method, String path, String token, String body) throws Exception {
+        String cookies = token == null ? "" : "turnero-jwt=" + token;
+        String csrf = null;
+        if (!method.equals("GET")) {
+            Res challenge = rawRequest("GET", "/api/auth/csrf", "", null, null);
+            String csrfCookie = challenge.headers().firstValue("Set-Cookie").orElseThrow().split(";", 2)[0];
+            cookies = cookies.isEmpty() ? csrfCookie : cookies + "; " + csrfCookie;
+            csrf = challenge.body().get("token").asText();
+        }
+        return rawRequest(method, path, cookies, csrf, body);
+    }
+
+    Res rawRequest(String method, String path, String cookies, String csrf, String body) throws Exception {
         var b = HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + port + path)).timeout(Duration.ofSeconds(15));
-        if (token != null) b.header("Authorization", "Bearer " + token);
+        if (!cookies.isEmpty()) b.header("Cookie", cookies);
+        if (csrf != null) b.header("X-XSRF-TOKEN", csrf);
         b.header("Content-Type", "application/json");
         b.method(method, body == null ? HttpRequest.BodyPublishers.noBody() : HttpRequest.BodyPublishers.ofString(body));
         var response = client.send(b.build(), HttpResponse.BodyHandlers.ofString());
         return new Res(response.statusCode(), response.body().isBlank() ? json.nullNode() : json.readTree(response.body()), response.headers());
     }
-    Res conCookie(String method, String path, String cookie) throws Exception {
-        var b = HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + port + path)).timeout(Duration.ofSeconds(15));
-        if (cookie != null) b.header("Cookie", cookie);
-        b.header("Content-Type", "application/json");
-        b.method(method, HttpRequest.BodyPublishers.noBody());
-        var response = client.send(b.build(), HttpResponse.BodyHandlers.ofString());
-        return new Res(response.statusCode(), response.body().isBlank() ? json.nullNode() : json.readTree(response.body()), response.headers());
+
+    String authCookie(Res response) {
+        return response.headers().allValues("Set-Cookie").stream()
+                .filter(cookie -> cookie.startsWith("turnero-jwt=")).findFirst().orElseThrow();
     }
+
+    String jwtFrom(Res response) {
+        return authCookie(response).split(";", 2)[0].split("=", 2)[1];
+    }
+
     JsonNode ok(int status, Res res) {
         assertEquals(status, res.status(), res.body().toString()); return res.body();
     }
     Cuenta registrar(String name, String dni) throws Exception {
-        JsonNode r = ok(201, request("POST", "/api/auth/register", null,
+        Res registrado = request("POST", "/api/auth/register", null,
             """
             {"nombre":"%s","apellido":"Test","email":"%s@test.com","password":"Password123!","dni":"%s"}
-            """.formatted(name, name, dni)));
+            """.formatted(name, name, dni));
+        JsonNode r = ok(201, registrado);
         assertEquals("PACIENTE", r.get("rol").asText());
         assertTrue(pacientes.existsById(r.get("id").asLong()));
-        return new Cuenta(r.get("id").asLong(), r.get("token").asText());
+        return new Cuenta(r.get("id").asLong(), jwtFrom(registrado));
     }
     String slotBody(long medicoId, LocalDate date, String hora, String precio) {
         return """
@@ -95,6 +111,52 @@ class FlujoTurneroTests {
     }
     Res agregar(Cuenta c, long cart, long turno) throws Exception {
         return request("POST", "/api/carritos/" + cart + "/turnos/" + turno, c.token(), null);
+    }
+
+    @Test
+    void sesionPorCookieYProteccionCsrf() throws Exception {
+        registrar("paciente", "30111222");
+        Res login = request("POST", "/api/auth/login", null,
+                "{\"email\":\"paciente@test.com\",\"password\":\"Password123!\"}");
+        JsonNode perfil = ok(200, login);
+        assertFalse(perfil.has("token"));
+        String cookie = authCookie(login);
+        assertTrue(cookie.contains("HttpOnly"));
+        assertTrue(cookie.contains("SameSite=Lax"));
+        assertTrue(cookie.contains("Path=/api"));
+        assertTrue(cookie.contains("Max-Age=36000"));
+        assertEquals(perfil, ok(200, request("GET", "/api/auth/me", jwtFrom(login), null)));
+        ok(401, request("GET", "/api/auth/me", null, null));
+        ok(401, request("GET", "/api/auth/me", "vencido-o-invalido", null));
+
+        String credencial = cookie.split(";", 2)[0];
+        JsonNode error = ok(403, rawRequest("POST", "/api/carritos", credencial, null, null));
+        assertEquals("CSRF_INVALIDO", error.get("codigo").asText());
+        assertEquals(0, carritos.count());
+        ok(200, request("POST", "/api/carritos", jwtFrom(login), null));
+        Res logout = request("POST", "/api/auth/logout", jwtFrom(login), null);
+        ok(204, logout);
+        assertTrue(authCookie(logout).contains("Max-Age=0"));
+    }
+
+    @Test
+    void agregadoDirectoPersisteYElListadoRespetaElPaciente() throws Exception {
+        Cuenta paciente = registrar("paciente", "30111222");
+        Cuenta otro = registrar("otro", "30111223");
+        long turno = slot("10:00", "250.50");
+        String body = "{\"id\":" + turno + "}";
+        ok(401, request("POST", "/api/carritos/add", null, body));
+        ok(404, request("POST", "/api/carritos/add", paciente.token(), "{\"id\":9223372036854775807}"));
+        assertEquals(0, ok(200, request("GET", "/api/carritos", paciente.token(), null)).size());
+
+        JsonNode agregado = ok(200, request("POST", "/api/carritos/add", paciente.token(), body));
+        long id = agregado.get("id").asLong();
+        assertEquals(turno, agregado.get("turnos").get(0).get("id").asLong());
+        assertEquals(0, new BigDecimal("250.50").compareTo(agregado.get("total").decimalValue()));
+        assertEquals(id, carrito(paciente));
+        assertEquals(id, ok(200, request("GET", "/api/carritos", paciente.token(), null)).get(0).get("id").asLong());
+        assertEquals(0, ok(200, request("GET", "/api/carritos", otro.token(), null)).size());
+        ok(409, request("POST", "/api/carritos/add", paciente.token(), body));
     }
 
     @Test
@@ -190,68 +252,16 @@ class FlujoTurneroTests {
     }
 
     @Test
-    void buscadorPorTexto() throws Exception {
-        slot("10:00", "100");
-        // médico, sin distinguir mayúsculas ni tildes
-        assertEquals(1, ok(200, request("GET", "/api/turnos?q=ana", null, null)).size());
-        assertEquals(1, ok(200, request("GET", "/api/turnos?q=%C3%81NA", null, null)).size());
-        // especialidad, calle y varias palabras a la vez
-        assertEquals(1, ok(200, request("GET", "/api/turnos?q=cardio", null, null)).size());
-        assertEquals(1, ok(200, request("GET", "/api/turnos?q=prueba", null, null)).size());
-        assertEquals(1, ok(200, request("GET", "/api/turnos?q=ana%20cardiologia", null, null)).size());
-        // sin coincidencias / una palabra que no está
-        assertEquals(0, ok(200, request("GET", "/api/turnos?q=pediatria", null, null)).size());
-        assertEquals(0, ok(200, request("GET", "/api/turnos?q=ana%20pediatria", null, null)).size());
-        // texto vacío = sin filtro; combinable con los otros filtros
-        assertEquals(1, ok(200, request("GET", "/api/turnos?q=%20%20", null, null)).size());
-        assertEquals(0, ok(200, request("GET", "/api/turnos?q=ana&especialidad=PEDIATRIA", null, null)).size());
-        // límite de longitud
-        ok(400, request("GET", "/api/turnos?q=" + "a".repeat(101), null, null));
-    }
-
-    @Test
-    void sesionPorCookieHttpOnly() throws Exception {
-        registrar("cookie", "30999888");
-        Res login = request("POST", "/api/auth/login", null, "{\"email\":\"cookie@test.com\",\"password\":\"Password123!\"}");
-        assertEquals(200, login.status());
-        String setCookie = login.headers().allValues("set-cookie").stream()
-            .filter(c -> c.startsWith("turnero_token=")).findFirst().orElseThrow();
-        assertTrue(setCookie.contains("HttpOnly"), setCookie);
-        assertTrue(setCookie.contains("SameSite=Lax"), setCookie);
-        assertTrue(setCookie.contains("Path=/api"), setCookie);
-        String cookie = setCookie.substring(0, setCookie.indexOf(';'));
-
-        // la cookie autentica sin header Authorization
-        JsonNode me = ok(200, conCookie("GET", "/api/auth/me", cookie));
-        assertEquals("cookie@test.com", me.get("email").asText());
-        assertTrue(me.path("token").isNull() || me.path("token").isMissingNode());
-        ok(200, conCookie("POST", "/api/carritos", cookie));
-        ok(401, request("GET", "/api/auth/me", null, null));
-
-        // cookie inválida: se borra y los endpoints públicos siguen funcionando
-        Res roto = conCookie("GET", "/api/turnos", "turnero_token=basura");
-        assertEquals(200, roto.status());
-        assertTrue(roto.headers().allValues("set-cookie").stream()
-            .anyMatch(c -> c.startsWith("turnero_token=") && c.contains("Max-Age=0")));
-        ok(401, conCookie("POST", "/api/carritos", "turnero_token=basura"));
-
-        // logout: el servidor borra la cookie
-        Res out = request("POST", "/api/auth/logout", null, null);
-        assertEquals(204, out.status());
-        assertTrue(out.headers().allValues("set-cookie").stream()
-            .anyMatch(c -> c.startsWith("turnero_token=") && c.contains("Max-Age=0")));
-    }
-
-    @Test
     void altaDeMedicoYPermisosDeSuAgenda() throws Exception {
         JsonNode m = ok(201, request("POST", "/api/medicos", adminToken, """
           {"nombre":"Luis","apellido":"Test","email":"nuevo@test.com","password":"Password123!",
            "matricula":"TEST-2","especialidad":"PEDIATRIA"}
           """));
-        JsonNode login = ok(200, request("POST", "/api/auth/login", null,
-                "{\"email\":\"nuevo@test.com\",\"password\":\"Password123!\"}"));
+        Res respuestaLogin = request("POST", "/api/auth/login", null,
+                "{\"email\":\"nuevo@test.com\",\"password\":\"Password123!\"}");
+        JsonNode login = ok(200, respuestaLogin);
         assertEquals("MEDICO", login.get("rol").asText());
-        String token = login.get("token").asText();
+        String token = jwtFrom(respuestaLogin);
         ok(201, request("POST", "/api/turnos", token, slotBody(m.get("id").asLong(), dia, "10:00", "100")));
         ok(403, request("POST", "/api/turnos", token, slotBody(medico.getId(), dia, "10:00", "100")));
         ok(403, request("POST", "/api/carritos", token, null));
@@ -312,10 +322,11 @@ class FlujoTurneroTests {
         var req = HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + port + "/api/carritos"))
                 .header("Origin", "http://localhost:5173")
                 .header("Access-Control-Request-Method", "POST")
-                .header("Access-Control-Request-Headers", "authorization,content-type")
+                .header("Access-Control-Request-Headers", "x-xsrf-token,content-type")
                 .method("OPTIONS", HttpRequest.BodyPublishers.noBody()).build();
         var res = client.send(req, HttpResponse.BodyHandlers.ofString());
         assertEquals(200, res.statusCode());
         assertEquals("http://localhost:5173", res.headers().firstValue("access-control-allow-origin").orElse(""));
+        assertEquals("true", res.headers().firstValue("access-control-allow-credentials").orElse(""));
     }
 }

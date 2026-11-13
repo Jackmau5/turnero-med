@@ -24,6 +24,10 @@ public class CarritoService {
         this.carritos = carritos; this.turnos = turnos; this.pacientes = pacientes; this.acceso = acceso;
         this.minutosReserva = minutosReserva;
     }
+    public List<CarritoResponseDto> getAll() {
+        return carritos.findByPacienteIdOrderByIdDesc(acceso.pacienteActual()).stream()
+                .map(this::respuesta).toList();
+    }
     public CarritoResponseDto obtenerPorId(Long id) {
         Carrito carrito = buscar(id);
         acceso.exigirPaciente(carrito.getPaciente().getId());
@@ -31,6 +35,15 @@ public class CarritoService {
     }
     @Transactional
     public CarritoResponseDto obtenerOCrearActivo(Long pacienteId) {
+        return respuesta(obtenerOCrearCarrito(pacienteId));
+    }
+
+    @Transactional
+    public CarritoResponseDto add(Long turnoId) {
+        return reservar(obtenerOCrearCarrito(null), turnoId);
+    }
+
+    private Carrito obtenerOCrearCarrito(Long pacienteId) {
         if (pacienteId == null) pacienteId = acceso.pacienteActual();
         acceso.exigirPaciente(pacienteId);
         Paciente paciente = pacientes.buscarConBloqueo(pacienteId)
@@ -49,11 +62,14 @@ public class CarritoService {
             carrito.setVenceEn(LocalDateTime.now().plusMinutes(minutosReserva));
             carritos.save(carrito);
         }
-        return respuesta(carrito);
+        return carrito;
     }
     @Transactional
     public CarritoResponseDto agregarTurno(Long id, Long turnoId) {
-        Carrito carrito = abiertoPropio(id);
+        return reservar(abiertoPropio(id), turnoId);
+    }
+
+    private CarritoResponseDto reservar(Carrito carrito, Long turnoId) {
         Turno turno = bloquearTurno(turnoId);
         if (turno.getEstado() != EstadoTurno.DISPONIBLE || !TurnoService.esFuturo(turno))
             throw new ConflictoException("El turno no está disponible o su fecha ya pasó");

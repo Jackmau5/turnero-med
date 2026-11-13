@@ -1,8 +1,7 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { especialidades, fechaLegible, pesos } from "../lib/api.js";
 
 export default function Tarjeta({ turno }) {
-  const location = useLocation();
   return (
     <article className="tarjeta">
       <div className="tarjeta-superior">
@@ -16,7 +15,7 @@ export default function Tarjeta({ turno }) {
         <span>Valor de la consulta</span>
         <strong>{pesos.format(turno.precio)}</strong>
       </div>
-      <Link className="enlace-detalle" to={`/consultas/${turno.id}`} state={{ volverA: location.pathname + location.search }}>Ver horario y reservar →</Link>
+      <Link className="enlace-detalle" to={`/consultas/${turno.id}`}>Ver horario y reservar →</Link>
     </article>
   );
 }

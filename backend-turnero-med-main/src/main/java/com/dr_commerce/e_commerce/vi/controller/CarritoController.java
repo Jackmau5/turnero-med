@@ -1,5 +1,6 @@
 package com.dr_commerce.e_commerce.vi.controller;
 
+import com.dr_commerce.e_commerce.vi.dto.CarritoAddRequestDto;
 import com.dr_commerce.e_commerce.vi.dto.CarritoResponseDto;
 import com.dr_commerce.e_commerce.vi.service.CarritoService;
 import org.springframework.http.ResponseEntity;
@@ -7,9 +8,12 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/carritos")
@@ -20,6 +24,19 @@ public class CarritoController {
     public CarritoController(CarritoService carritoService) {
         this.carritoService = carritoService;
     }
+    @GetMapping
+    public List<CarritoResponseDto> getAll() {
+        return carritoService.getAll();
+    }
+
+    @PostMapping("/add")
+    public CarritoResponseDto add(@RequestBody CarritoAddRequestDto request) {
+        if (request.id() == null || request.id() <= 0) {
+            throw new IllegalArgumentException("El ID del turno debe ser positivo");
+        }
+        return carritoService.add(request.id());
+    }
+
     // Obtiene el carrito activo del paciente o crea uno si no existe.
     @PostMapping
     public ResponseEntity<CarritoResponseDto> obtenerOCrearActivo(@RequestParam(required = false) Long pacienteId) {

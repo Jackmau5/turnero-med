@@ -1,23 +1,21 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { api, esFuturo, especialidades, fechaLegible, pesos } from "../lib/api.js";
-import { useAuth } from "../context/AuthContext.jsx";
 
 export default function MisTurnos() {
-  const { usuario } = useAuth();
   const location = useLocation();
   const [turnos, setTurnos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [ocupado, setOcupado] = useState(null);
   const [error, setError] = useState("");
   const [aviso, setAviso] = useState(location.state?.aviso || "");
-  const cargar = useCallback(() => api("/turnos/mis-turnos").then(setTurnos), [usuario.id]);
+  const cargar = useCallback(() => api("/turnos/mis-turnos", { protegida: true }).then(setTurnos), []);
   useEffect(() => { cargar().catch((e) => setError(e.message)).finally(() => setCargando(false)); }, [cargar]);
   async function cancelar(turno) {
     if (!window.confirm(`¿Cancelar el turno con ${turno.medicoNombre} del ${fechaLegible(turno)}?`)) return;
     setOcupado(turno.id); setError(""); setAviso("");
     try {
-      await api(`/turnos/${turno.id}/cancelar`, { method: "POST" });
+      await api(`/turnos/${turno.id}/cancelar`, { protegida: true, method: "POST" });
       await cargar(); setAviso("Turno cancelado. El horario volvió a estar disponible.");
     } catch (e) { setError(e.message); }
     finally { setOcupado(null); }

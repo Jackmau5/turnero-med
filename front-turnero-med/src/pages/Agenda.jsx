@@ -24,7 +24,7 @@ export default function Agenda() {
     try {
       const params = new URLSearchParams({ estado });
       if (medicoId) params.set("medicoId", medicoId);
-      const data = await api(`/turnos?${params}`);
+      const data = await api(`/turnos?${params}`, { protegida: true });
       setTurnos(data);
     } catch (e) { setError(e.message); }
     finally { setCargando(false); }
@@ -46,7 +46,7 @@ export default function Agenda() {
       direccion: { calle: form.calle, altura: Number(form.altura), ciudad: form.ciudad, codigoPostal: form.codigoPostal },
       precio: Number(form.precio) };
     try {
-      await api(editando ? `/turnos/${editando}` : "/turnos", { method: editando ? "PUT" : "POST", body });
+      await api(editando ? `/turnos/${editando}` : "/turnos", { protegida: true, method: editando ? "PUT" : "POST", body });
       setAviso(editando ? "Horario actualizado." : "Horario publicado.");
       limpiar(); await cargar();
     } catch (e) { setError(e.message); }
@@ -56,7 +56,7 @@ export default function Agenda() {
     if (!window.confirm(`¿Dar de baja el horario del ${fechaLegible(turno)}?`)) return;
     setOcupado(true); setError(""); setAviso("");
     try {
-      await api(`/turnos/${turno.id}`, { method: "DELETE" });
+      await api(`/turnos/${turno.id}`, { protegida: true, method: "DELETE" });
       await cargar(); setAviso("Horario retirado de la oferta.");
     } catch (e) { setError(e.message); }
     finally { setOcupado(false); }

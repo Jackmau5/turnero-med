@@ -11,14 +11,14 @@ export default function Perfil() {
   const [ocupado, setOcupado] = useState(false);
   const [error, setError] = useState("");
   useEffect(() => {
-    api(`/pacientes/${usuario.id}`).then((p) => setDatos({ ...p, password: "" }))
+    api(`/pacientes/${usuario.id}`, { protegida: true }).then((p) => setDatos({ ...p, password: "" }))
       .catch((e) => setError(e.message)).finally(() => setCargando(false));
   }, [usuario]);
   async function guardar(e) {
     e.preventDefault(); setOcupado(true); setError("");
     try {
-      await api(`/pacientes/${usuario.id}`, { method: "PUT", body: datos });
-      cerrarSesion();
+      await api(`/pacientes/${usuario.id}`, { protegida: true, method: "PUT", body: datos });
+      await cerrarSesion();
       navigate("/ingresar", { replace: true, state: { aviso: "Perfil actualizado. Ingresá nuevamente para continuar." } });
     } catch (e) { setError(e.message); }
     finally { setOcupado(false); }

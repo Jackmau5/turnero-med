@@ -18,9 +18,8 @@ public class TurnoController {
     @GetMapping
     public List<TurnoResponseDto> listar(@RequestParam(required = false) Especialidad especialidad,
             @RequestParam(required = false) Long medicoId, @RequestParam(required = false) LocalDate dia,
-            @RequestParam(required = false) EstadoTurno estado, @RequestParam(required = false) Long pacienteId,
-            @RequestParam(required = false) String q) {
-        return servicio.listar(especialidad, medicoId, dia, estado, pacienteId, q);
+            @RequestParam(required = false) EstadoTurno estado, @RequestParam(required = false) Long pacienteId) {
+        return servicio.listar(especialidad, medicoId, dia, estado, pacienteId);
     }
     @GetMapping("/mis-turnos")
     public List<TurnoResponseDto> misTurnos() { return servicio.misTurnos(); }

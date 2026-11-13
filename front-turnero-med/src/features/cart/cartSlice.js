@@ -1,26 +1,52 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { api } from "../../lib/api.js";
 
-export const fetchCart = createAsyncThunk(
-  "cart/fetchCart",
-  async (_, { signal }) => api("/carritos", { method: "POST", signal }),
-);
+function cartRequest(name, request) {
+  return createAsyncThunk(`cart/${name}`, async (args, { signal, rejectWithValue }) => {
+    try {
+      return await api(request.path(args), {
+        protegida: true,
+        method: request.method,
+        body: request.body?.(args),
+        signal,
+      });
+    } catch (error) {
+      if (error.name === "AbortError") throw error;
+      return rejectWithValue({ message: error.message, status: error.status });
+    }
+  });
+}
 
-export const addToCart = createAsyncThunk(
-  "cart/addToCart",
-  async ({ turnoId }, { signal }) => {
-    const carrito = await api("/carritos", { method: "POST", signal });
-    return api(`/carritos/${carrito.id}/turnos/${turnoId}`, {
-      method: "POST",
-      signal,
-    });
-  },
-);
+export const fetchCart = cartRequest("fetchCart", {
+  method: "POST",
+  path: () => "/carritos",
+});
+export const addToCart = cartRequest("addToCart", {
+  method: "POST",
+  path: () => "/carritos/add",
+  body: ({ turnoId }) => ({ id: turnoId }),
+});
+export const removeFromCart = cartRequest("removeFromCart", {
+  method: "DELETE",
+  path: ({ carritoId, turnoId }) => `/carritos/${carritoId}/turnos/${turnoId}`,
+});
+export const emptyCart = cartRequest("emptyCart", {
+  method: "DELETE",
+  path: ({ carritoId }) => `/carritos/${carritoId}/turnos`,
+});
+export const cancelCart = cartRequest("cancelCart", {
+  method: "DELETE",
+  path: ({ carritoId }) => `/carritos/${carritoId}`,
+});
+export const confirmCart = cartRequest("confirmCart", {
+  method: "POST",
+  path: ({ carritoId }) => `/carritos/${carritoId}/confirmar`,
+});
 
 const initialState = {
   carrito: null,
-  fetchStatus: "idle",
-  addStatus: "idle",
+  status: "idle",
+  requestId: null,
   error: null,
 };
 
@@ -29,48 +55,31 @@ const cartSlice = createSlice({
   initialState,
   reducers: {
     resetCart: () => initialState,
-    restaurarCarrito(state, action) {
-      if (action.payload && !state.carrito) state.carrito = action.payload; // copia local; el servidor la confirma o corrige enseguida
-    },
-    clearCartError(state) {
-      state.error = null;
-    },
   },
   extraReducers(builder) {
-    builder
-      .addCase(fetchCart.pending, (state) => {
-        state.fetchStatus = "loading";
-        state.error = null;
-      })
-      .addCase(fetchCart.fulfilled, (state, action) => {
-        state.fetchStatus = "succeeded";
-        state.carrito = action.payload;
-      })
-      .addCase(fetchCart.rejected, (state, action) => {
-        state.fetchStatus = "failed";
-        state.error = action.error.message || "No se pudo cargar el carrito.";
-      })
-      .addCase(addToCart.pending, (state) => {
-        state.addStatus = "loading";
-        state.error = null;
-      })
-      .addCase(addToCart.fulfilled, (state, action) => {
-        state.addStatus = "succeeded";
-        state.carrito = action.payload;
-      })
-      .addCase(addToCart.rejected, (state, action) => {
-        state.addStatus = "failed";
-        state.error = action.error.message || "No se pudo agregar el turno al carrito.";
-      });
+    const operations = [fetchCart, addToCart, removeFromCart, emptyCart, cancelCart, confirmCart];
+    for (const operation of operations) {
+      builder
+        .addCase(operation.pending, (state, { meta }) => {
+          state.status = "loading";
+          state.requestId = meta.requestId;
+          state.error = null;
+        })
+        .addCase(operation.fulfilled, (state, { meta, payload }) => {
+          if (state.requestId !== meta.requestId) return;
+          state.status = "succeeded";
+          state.requestId = null;
+          state.carrito = payload;
+        })
+        .addCase(operation.rejected, (state, { meta, payload, error }) => {
+          if (state.requestId !== meta.requestId) return;
+          state.requestId = null;
+          state.status = meta.aborted ? "idle" : "failed";
+          if (!meta.aborted) state.error = payload?.message || error.message;
+        });
+    }
   },
 });
 
-export const { resetCart, restaurarCarrito, clearCartError } = cartSlice.actions;
-
-// Cantidad de turnos del carrito abierto y vigente (para la insignia de la barra).
-export const cantidadCarrito = (state) => {
-  const carrito = state.cart.carrito;
-  if (!carrito || carrito.estado !== "ABIERTO" || new Date(carrito.venceEn) <= new Date()) return 0;
-  return carrito.turnos.length;
-};
+export const { resetCart } = cartSlice.actions;
 export default cartSlice.reducer;
