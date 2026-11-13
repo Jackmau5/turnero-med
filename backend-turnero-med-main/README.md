@@ -45,14 +45,14 @@ Importá `docs/Turnero-Med.postman_collection.json`. Con el back levantado, ejec
 13. Cancelar el turno confirmado.
 14. Comprobar que ese horario volvió a estar disponible.
 
-La colección guarda los IDs y los tokens en variables automáticamente. Sus usuarios tienen nombres, emails y DNI ficticios. Cada ejecución crea registros nuevos; usala sobre la base local de pruebas.
+La colección guarda los IDs en variables, usa el almacenamiento de cookies de Postman y obtiene el token CSRF antes de cada escritura. Sus usuarios tienen nombres, emails y DNI ficticios. Cada ejecución crea registros nuevos; usala sobre la base local de pruebas.
 
 ## Recorrido y estados
 
 - El **administrador** crea médicos. El administrador o el **médico dueño de la agenda** publica horarios con fecha, hora, dirección y precio. Nacen como `DISPONIBLE`.
 - Cualquier visitante puede consultar médicos y horarios disponibles futuros.
 - El **paciente** se registra con nombre, apellido, email, contraseña y DNI. Se guarda como paciente real; no puede asignarse a sí mismo el rol ADMIN o MEDICO.
-- Registro y login devuelven un JWT, el ID del usuario y el rol. El front envía `Authorization: Bearer TOKEN` en las operaciones privadas.
+- Registro y login devuelven el perfil y entregan el JWT en la cookie HttpOnly `turnero-jwt`. `GET /api/auth/me` restaura el perfil y `POST /api/auth/logout` elimina la cookie.
 - `POST /api/carritos` identifica al paciente por su token y devuelve su carrito abierto. Si no tiene uno, lo crea. Hay un solo carrito abierto por paciente.
 - Al agregar un turno, pasa de `DISPONIBLE` a `RESERVADO`: otro paciente ya no puede agregarlo. El precio lo toma el servidor de la base; el front no decide el total.
 - Se puede quitar un turno, vaciar el carrito o cancelar el carrito. Los horarios se liberan y vuelven a `DISPONIBLE`.
@@ -70,8 +70,11 @@ Base: `http://localhost:8080/api`. Enviar JSON con `Content-Type: application/js
 
 | Método y ruta | Función | Acceso |
 |---|---|---|
-| POST `/auth/register` | Registrar paciente y obtener token | Público |
-| POST `/auth/login` | Iniciar sesión y obtener token | Público |
+| POST `/auth/register` | Registrar paciente e iniciar sesión | Público |
+| POST `/auth/login` | Iniciar sesión y recibir cookie | Público |
+| GET `/auth/me` | Consultar el perfil de la sesión | Autenticado |
+| GET `/auth/csrf` | Obtener el token anti-CSRF | Público |
+| POST `/auth/logout` | Eliminar cookies de sesión y CSRF | Público, requiere CSRF |
 | GET `/medicos` | Listar médicos | Público |
 | GET `/medicos/{id}` | Detalle de médico | Público |
 | POST `/medicos` | Alta de médico | ADMIN |
@@ -110,7 +113,7 @@ Base: `http://localhost:8080/api`. Enviar JSON con `Content-Type: application/js
 }
 ```
 
-El login requiere solo `email` y `password`. La respuesta contiene `id`, `nombre`, `apellido`, `email`, `rol` y `token`; nunca devuelve la contraseña.
+El login requiere solo `email` y `password`. La respuesta contiene `id`, `nombre`, `apellido`, `email` y `rol`. El JWT viaja en `Set-Cookie`; la contraseña nunca se devuelve.
 
 ### Alta de turno
 
@@ -141,7 +144,9 @@ La respuesta agrega el ID, el estado, `medicoNombre` y `especialidad`. Esto perm
 - 404: registro inexistente.
 - 409: email/DNI duplicado, horario ocupado, carrito cerrado/vacío/vencido o conflicto de reservas.
 
-El token dura 10 horas. Al cerrar sesión, el front descarta el token; si vence, pide login otra vez. CORS permite por defecto `http://localhost:5173` y `http://127.0.0.1:5173`, con los headers `Authorization` y `Content-Type`. Podés cambiar los orígenes con `FRONTEND_ORIGINS` (separados por coma).
+El JWT y su cookie duran 10 horas. La cookie tiene `HttpOnly`, `SameSite=Lax` y `Path=/api`. `Secure` está activo por defecto y se desactiva en el perfil `local` para usar HTTP. Para otro perfil de desarrollo en HTTP se puede indicar `AUTH_COOKIE_SECURE=false`. En producción usá HTTPS y mantené `Secure` activo.
+
+Antes de hacer POST, PUT o DELETE, obtené el token en `GET /api/auth/csrf` y envialo como `X-XSRF-TOKEN` junto con las cookies. Después de login, registro o logout hay que obtener otro. React se ocupa automáticamente. CORS usa orígenes exactos configurables con `FRONTEND_ORIGINS`, permite credenciales y los encabezados `Content-Type` y `X-XSRF-TOKEN`. Vite reenvía `/api` desde el mismo origen.
 
 El frontend React ya consume estos endpoints y usa los IDs reales de los turnos. Para iniciar ambas partes, conocer las pantallas y recorrer la reserva desde el navegador, consultá el [README del frontend](../front-turnero-med/README.md). Los IDs del antiguo JSON local no equivalían a los de la base y ese archivo se retiró.
 

@@ -12,5 +12,4 @@ public class UsuarioResponseDto {
     private final String apellido;
     private final String email;
     private final com.dr_commerce.e_commerce.vi.model.Rol rol;
-    private final String token;  // JWT generado en login/register
 }

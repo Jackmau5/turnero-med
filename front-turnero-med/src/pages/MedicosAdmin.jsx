@@ -1,10 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { api, especialidades } from "../lib/api.js";
-import { useAuth } from "../context/AuthContext.jsx";
 
 const vacio = { nombre: "", apellido: "", email: "", password: "", matricula: "", especialidad: "CARDIOLOGIA" };
 export default function MedicosAdmin() {
-  const { usuario } = useAuth();
   const [medicos, setMedicos] = useState([]);
   const [form, setForm] = useState(vacio);
   const [editando, setEditando] = useState(null);
@@ -16,7 +14,7 @@ export default function MedicosAdmin() {
   async function guardar(e) {
     e.preventDefault(); setOcupado(true); setError(""); setAviso("");
     try {
-      await api(editando ? `/medicos/${editando}` : "/medicos", { method: editando ? "PUT" : "POST", body: form });
+      await api(editando ? `/medicos/${editando}` : "/medicos", { protegida: true, method: editando ? "PUT" : "POST", body: form });
       await cargar(); setForm(vacio); setEditando(null);
       setAviso(editando ? "Médico actualizado." : "Médico creado. Ya puede iniciar sesión y publicar horarios.");
     } catch (e) { setError(e.message); }
@@ -25,7 +23,7 @@ export default function MedicosAdmin() {
   async function eliminar(m) {
     if (!window.confirm(`¿Eliminar a ${m.nombre} ${m.apellido}? Solo se podrá si no tiene turnos relacionados.`)) return;
     setOcupado(true); setError(""); setAviso("");
-    try { await api(`/medicos/${m.id}`, { method: "DELETE" }); await cargar(); setAviso("Médico eliminado."); }
+    try { await api(`/medicos/${m.id}`, { protegida: true, method: "DELETE" }); await cargar(); setAviso("Médico eliminado."); }
     catch (e) { setError(e.message); }
     finally { setOcupado(false); }
   }

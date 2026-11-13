@@ -44,9 +44,9 @@ Los horarios de prueba creados inicialmente por el backend son para el día post
 
 ## Cómo se conecta al backend
 
-- `src/lib/api.js` centraliza `fetch`, JSON, token `Bearer` y mensajes de error. Las páginas llaman a `/api/auth`, `/api/medicos`, `/api/turnos`, `/api/carritos` y `/api/pacientes`. La lista exacta de operaciones y las reglas de cada estado están en el [README del backend](../turnero-med-main/README.md).
+- `src/lib/api.js` centraliza `fetch`, JSON, cookies, protección CSRF y mensajes de error. Las páginas llaman a `/api/auth`, `/api/medicos`, `/api/turnos`, `/api/carritos` y `/api/pacientes`. La lista exacta de operaciones y las reglas de cada estado están en el [README del backend](../turnero-med-main/README.md).
 - `src/context/AuthContext.jsx` guarda en `localStorage` el usuario, rol y JWT del login. El JWT se quita al salir o si vence. En el servidor se comprueba otra vez. No se guarda la contraseña.
-- `Listado.jsx` pide los turnos disponibles y `Tarjeta.jsx` usa `.map()` para mostrar una tarjeta por horario. `DetalleConsulta.jsx` agrega el turno al carrito mediante la API.
+- `Listado.jsx` pide los turnos disponibles y `Tarjeta.jsx` usa `.map()` para mostrar una tarjeta por horario. `DetalleConsulta.jsx` despacha `addToCart`, que agrega el turno con `POST /api/carritos/add`. El slice también maneja la carga, quitar, vaciar, cancelar y confirmar. La API devuelve el carrito persistido y Redux mantiene la copia que muestra la pantalla.
 - `Carrito.jsx` usa los importes, estado y fecha de vencimiento devueltos por el backend; `MisTurnos.jsx` obtiene el historial propio y envía la cancelación.
 - `Agenda.jsx`, `MedicosAdmin.jsx` y `PacientesAdmin.jsx` presentan formularios simples para gestionar los datos permitidos al rol.
 - Cada pantalla muestra estados de carga, confirmación y errores. Si el backend está apagado, aparece un mensaje de conexión. Un horario ocupado, un carrito vencido o un formulario inválido muestra el error enviado por la API.

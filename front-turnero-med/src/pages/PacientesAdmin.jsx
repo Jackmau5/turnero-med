@@ -1,29 +1,27 @@
 import { useCallback, useEffect, useState } from "react";
 import { api } from "../lib/api.js";
-import { useAuth } from "../context/AuthContext.jsx";
 
 const vacio = { nombre: "", apellido: "", email: "", dni: "", password: "" };
 export default function PacientesAdmin() {
-  const { usuario } = useAuth();
   const [pacientes, setPacientes] = useState([]);
   const [form, setForm] = useState(vacio);
   const [editando, setEditando] = useState(null);
   const [error, setError] = useState("");
   const [aviso, setAviso] = useState("");
   const [ocupado, setOcupado] = useState(false);
-  const cargar = useCallback(() => api("/pacientes").then(setPacientes).catch((e) => setError(e.message)), [usuario.id]);
+  const cargar = useCallback(() => api("/pacientes", { protegida: true }).then(setPacientes).catch((e) => setError(e.message)), []);
   useEffect(() => { cargar(); }, [cargar]);
   async function guardar(e) {
     e.preventDefault(); setOcupado(true); setError(""); setAviso("");
     try {
-      await api(editando ? `/pacientes/${editando}` : "/pacientes", { method: editando ? "PUT" : "POST", body: form });
+      await api(editando ? `/pacientes/${editando}` : "/pacientes", { protegida: true, method: editando ? "PUT" : "POST", body: form });
       await cargar(); setEditando(null); setForm(vacio); setAviso(editando ? "Paciente actualizado." : "Paciente creado.");
     } catch (e) { setError(e.message); } finally { setOcupado(false); }
   }
   async function eliminar(p) {
     if (!window.confirm(`¿Eliminar a ${p.nombre} ${p.apellido}? Solo se podrá si no tiene turnos o carritos relacionados.`)) return;
     setOcupado(true); setError(""); setAviso("");
-    try { await api(`/pacientes/${p.id}`, { method: "DELETE" }); await cargar(); setAviso("Paciente eliminado."); }
+    try { await api(`/pacientes/${p.id}`, { protegida: true, method: "DELETE" }); await cargar(); setAviso("Paciente eliminado."); }
     catch (e) { setError(e.message); } finally { setOcupado(false); }
   }
   return <section className="pagina"><p className="etiqueta">ADMINISTRACIÓN</p><h1>Pacientes</h1>

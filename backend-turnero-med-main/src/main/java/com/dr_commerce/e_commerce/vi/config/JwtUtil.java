@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,9 +23,7 @@ public class JwtUtil {
             throw new IllegalArgumentException("JWT_SECRET debe tener al menos 32 bytes");
         this.secret = secret;
     }
-    private static final long EXPIRACION_MS = 1000 * 60 * 60 * 10; // 10 horas
-
-    public long getExpiracionMs() { return EXPIRACION_MS; }
+    public static final Duration VIGENCIA = Duration.ofHours(10);
 
     private SecretKey getSecretKey() {
         return Keys.hmacShaKeyFor(secret.getBytes(java.nio.charset.StandardCharsets.UTF_8));
@@ -38,7 +37,7 @@ public class JwtUtil {
                 .claims(claims)
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + EXPIRACION_MS))
+                .expiration(new Date(System.currentTimeMillis() + VIGENCIA.toMillis()))
                 .signWith(getSecretKey())
                 .compact();
     }

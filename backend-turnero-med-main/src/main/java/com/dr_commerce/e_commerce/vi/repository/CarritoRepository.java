@@ -5,12 +5,15 @@ import com.dr_commerce.e_commerce.vi.model.EstadoCarrito;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface CarritoRepository extends JpaRepository<Carrito, Long> {
 
     java.util.List<Carrito> findByEstadoAndVenceEnBefore(EstadoCarrito estado, java.time.LocalDateTime ahora);
+
+    List<Carrito> findByPacienteIdOrderByIdDesc(Long pacienteId);
 
     Optional<Carrito> findByPacienteIdAndEstado(Long pacienteId, EstadoCarrito estado);
     @org.springframework.data.jpa.repository.Query("select c.paciente.id from Carrito c where c.id = :id")

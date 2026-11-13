@@ -4,7 +4,7 @@ import { api } from "../lib/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
 
 export default function Acceso({ registro = false }) {
-  const { guardarSesion } = useAuth();
+  const { guardarSesion, cargandoSesion } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [datos, setDatos] = useState({ nombre: "", apellido: "", email: "", dni: "", password: "" });
@@ -24,6 +24,8 @@ export default function Acceso({ registro = false }) {
     } catch (e) { setError(e.message); }
     finally { setEnviando(false); }
   }
+
+  if (cargandoSesion) return <p className="mensaje">Verificando sesión…</p>;
 
   return (
     <section className="formulario-pagina">

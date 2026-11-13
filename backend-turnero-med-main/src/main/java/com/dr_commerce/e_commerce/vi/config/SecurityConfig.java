@@ -10,6 +10,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.*;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfException;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.beans.factory.annotation.Value;
 import java.util.List;
 
@@ -21,12 +24,18 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public CsrfTokenRepository csrfTokenRepository(
+            @Value("${app.auth.cookie-secure:true}") boolean cookieSecure) {
+        var repository = new CookieCsrfTokenRepository();
+        repository.setCookieName("turnero-csrf");
+        repository.setCookieCustomizer(cookie -> cookie.httpOnly(true).secure(cookieSecure)
+                .path("/api").sameSite("Lax"));
+        return repository;
+    }
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http, CsrfTokenRepository csrfTokens) throws Exception {
         return http
-            // El JWT viaja en una cookie HttpOnly con SameSite (Lax por defecto), que el navegador no envía
-            // en POST/PUT/DELETE iniciados desde otros sitios; por eso no hace falta token CSRF.
-            // Si el front se aloja en otro sitio y se usa SameSite=None, hay que reactivar la protección CSRF.
-            .csrf(csrf -> csrf.disable())
+            .csrf(csrf -> csrf.csrfTokenRepository(csrfTokens))
             .cors(cors -> {})
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .exceptionHandling(e -> e
@@ -36,11 +45,16 @@ public class SecurityConfig {
                 })
                 .accessDeniedHandler((req, res, ex) -> {
                     res.setStatus(403); res.setContentType("application/json;charset=UTF-8");
-                    res.getWriter().write("{\"status\":403,\"mensaje\":\"No tenés permiso para realizar esta acción\"}");
+                    if (ex instanceof CsrfException) {
+                        res.getWriter().write("{\"status\":403,\"codigo\":\"CSRF_INVALIDO\",\"mensaje\":\"No se pudo validar la seguridad de la solicitud\"}");
+                    } else {
+                        res.getWriter().write("{\"status\":403,\"mensaje\":\"No tenés permiso para realizar esta acción\"}");
+                    }
                 }))
             .authorizeHttpRequests(a -> a
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login", "/api/auth/logout").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/auth/csrf").permitAll()
                 .requestMatchers("/error", "/actuator/health").permitAll()
                 .requestMatchers("/api/turnos/mis-turnos").hasRole("PACIENTE")
                 .requestMatchers(HttpMethod.GET, "/api/medicos/**", "/api/turnos/**").permitAll()
@@ -56,8 +70,8 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(origins);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        config.setAllowCredentials(true); // necesario para que el navegador envíe la cookie en peticiones cross-origin
+        config.setAllowedHeaders(List.of("Content-Type", "X-XSRF-TOKEN"));
+        config.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/api/**", config);
         return source;

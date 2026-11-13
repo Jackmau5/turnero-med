@@ -1,42 +1,46 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { api } from "../lib/api.js";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { resetCart } from "../features/cart/cartSlice.js";
+import { api, cambiarSesionApi } from "../lib/api.js";
 
 const AuthContext = createContext(null);
 
-// El token JWT vive en una cookie HttpOnly: el front nunca lo ve ni lo guarda.
-// Acá solo se conservan los datos públicos del usuario para mostrar en pantalla.
-function datosPublicos(data) {
-  return { id: data.id, nombre: data.nombre, apellido: data.apellido, email: data.email, rol: data.rol };
-}
-
 export function AuthProvider({ children }) {
+  const dispatch = useDispatch();
   const [usuario, setUsuario] = useState(null);
-  const [cargando, setCargando] = useState(true);
+  const [cargandoSesion, setCargandoSesion] = useState(true);
 
-  // Al abrir la página se le pregunta al back si la cookie corresponde a una sesión válida.
-  useEffect(() => {
-    let activo = true;
-    api("/auth/me")
-      .then((data) => { if (activo) setUsuario(datosPublicos(data)); })
-      .catch(() => {})
-      .finally(() => { if (activo) setCargando(false); });
-    return () => { activo = false; };
-  }, []);
+  const guardarSesion = useCallback((perfil) => {
+    cambiarSesionApi();
+    dispatch(resetCart());
+    setUsuario(perfil);
+    setCargandoSesion(false);
+  }, [dispatch]);
 
-  function guardarSesion(data) {
-    setUsuario(datosPublicos(data));
-  }
-  function cerrarSesion() {
-    // El back borra la cookie; el front solo olvida al usuario.
-    api("/auth/logout", { method: "POST" }).catch(() => {});
-    setUsuario(null);
-  }
+  const cerrarSesion = useCallback(async () => {
+    await api("/auth/logout", { method: "POST" });
+    guardarSesion(null);
+  }, [guardarSesion]);
+
   useEffect(() => {
-    const vencida = () => setUsuario(null);
-    window.addEventListener("turnero:sesion-vencida", vencida);
-    return () => window.removeEventListener("turnero:sesion-vencida", vencida);
-  }, []);
-  return <AuthContext.Provider value={{ usuario, cargando, guardarSesion, cerrarSesion }}>{children}</AuthContext.Provider>;
+    try {
+      localStorage.removeItem("turnero-med-sesion");
+    } catch {
+      // La restauración por cookie también funciona con el almacenamiento bloqueado.
+    }
+    const controller = new AbortController();
+    api("/auth/me", { signal: controller.signal })
+      .then((perfil) => { if (!controller.signal.aborted) guardarSesion(perfil); })
+      .catch(() => { if (!controller.signal.aborted) setCargandoSesion(false); });
+    const sesionVencida = () => guardarSesion(null);
+    window.addEventListener("turnero:sesion-vencida", sesionVencida);
+    return () => {
+      controller.abort();
+      window.removeEventListener("turnero:sesion-vencida", sesionVencida);
+    };
+  }, [guardarSesion]);
+
+  return <AuthContext.Provider value={{ usuario, cargandoSesion, guardarSesion, cerrarSesion }}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

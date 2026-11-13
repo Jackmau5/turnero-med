@@ -9,10 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.*;
 import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @Transactional(readOnly = true)
@@ -24,8 +20,7 @@ public class TurnoService {
     public TurnoService(TurnoRepository turnos, MedicoRepository medicos, PacienteRepository pacientes, AccesoService acceso) {
         this.turnos = turnos; this.medicos = medicos; this.pacientes = pacientes; this.acceso = acceso;
     }
-    public List<TurnoResponseDto> listar(Especialidad especialidad, Long medicoId, LocalDate dia, EstadoTurno estado, Long pacienteId, String q) {
-        if (q != null && q.length() > 100) throw new IllegalArgumentException("La búsqueda no puede superar los 100 caracteres");
+    public List<TurnoResponseDto> listar(Especialidad especialidad, Long medicoId, LocalDate dia, EstadoTurno estado, Long pacienteId) {
         if (pacienteId != null) acceso.exigirPacienteOAdmin(pacienteId);
         EstadoTurno filtro = estado == null && pacienteId == null ? EstadoTurno.DISPONIBLE : estado;
         if (filtro != EstadoTurno.DISPONIBLE) acceso.usuarioActual();
@@ -33,27 +28,7 @@ public class TurnoService {
                 .filter(t -> pacienteId == null || (t.getPaciente() != null && pacienteId.equals(t.getPaciente().getId())))
                 .filter(t -> filtro != EstadoTurno.DISPONIBLE || esFuturo(t))
                 .filter(this::puedeVer)
-                .filter(t -> coincide(t, q))
                 .map(DtoMapper::turno).toList();
-    }
-    /** Búsqueda de texto libre: cada palabra debe aparecer en médico, especialidad, calle o ciudad (sin distinguir mayúsculas ni tildes). */
-    private static boolean coincide(Turno t, String q) {
-        String buscado = normalizar(q);
-        if (buscado.isEmpty()) return true;
-        Medico m = t.getMedico();
-        Direccion d = t.getDireccion();
-        String texto = normalizar(Stream.of(
-                m == null ? null : m.getNombre(), m == null ? null : m.getApellido(),
-                m == null || m.getEspecialidad() == null ? null : m.getEspecialidad().name(),
-                d == null ? null : d.getCalle(), d == null ? null : d.getCiudad())
-                .filter(Objects::nonNull).collect(Collectors.joining(" ")));
-        for (String palabra : buscado.split("\\s+")) if (!texto.contains(palabra)) return false;
-        return true;
-    }
-    private static String normalizar(String s) {
-        if (s == null) return "";
-        return java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFD)
-                .replaceAll("\\p{M}", "").replace('_', ' ').toLowerCase(Locale.ROOT).trim();
     }
     public List<TurnoResponseDto> misTurnos() {
         return turnos.findByPacienteIdOrderByFecha_DiaAscFecha_HoraAsc(acceso.pacienteActual())

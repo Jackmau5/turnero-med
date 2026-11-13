@@ -1,5 +1,5 @@
+import { useState } from "react";
 import { Link, NavLink, Route, Routes, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
 import Listado from "./components/Listado.jsx";
 import DetalleConsulta from "./components/DetalleConsulta.jsx";
 import RutaProtegida from "./components/RutaProtegida.jsx";
@@ -11,8 +11,6 @@ import Perfil from "./pages/Perfil.jsx";
 import Agenda from "./pages/Agenda.jsx";
 import MedicosAdmin from "./pages/MedicosAdmin.jsx";
 import PacientesAdmin from "./pages/PacientesAdmin.jsx";
-import { cantidadCarrito, resetCart } from "./features/cart/cartSlice.js";
-import PersistenciaCarrito from "./components/PersistenciaCarrito.jsx";
 
 function Inicio() {
   return <>
@@ -30,18 +28,29 @@ function PaginaNoEncontrada() {
 }
 
 function Navegacion() {
-  const { usuario, cerrarSesion } = useAuth();
-  const dispatch = useDispatch();
-  const cantidad = useSelector(cantidadCarrito);
+  const { usuario, cerrarSesion, cargandoSesion } = useAuth();
   const navigate = useNavigate();
   const enlace = ({ isActive }) => isActive ? "nav-enlace activo" : "nav-enlace";
-  function salir() { cerrarSesion(); dispatch(resetCart()); navigate("/", { replace: true }); }
+  const [saliendo, setSaliendo] = useState(false);
+  const [error, setError] = useState("");
+  async function salir() {
+    setSaliendo(true);
+    setError("");
+    try {
+      await cerrarSesion();
+      navigate("/", { replace: true });
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setSaliendo(false);
+    }
+  }
   return <header className="encabezado"><div className="contenedor cabecera">
     <Link className="marca-enlace" to="/"><span className="marca-icono" aria-hidden="true">+</span><span>Turnero <strong>Med</strong></span></Link>
     <nav className="navegacion" aria-label="Navegación principal">
       <NavLink className={enlace} to="/" end>Horarios</NavLink>
       {usuario?.rol === "PACIENTE" && <>
-        <NavLink className={enlace} to="/carrito">Carrito{cantidad > 0 && <span className="insignia" aria-label={`${cantidad} ${cantidad === 1 ? "turno" : "turnos"} en el carrito`}>{cantidad}</span>}</NavLink>
+        <NavLink className={enlace} to="/carrito">Carrito</NavLink>
         <NavLink className={enlace} to="/mis-turnos">Mis turnos</NavLink>
         <NavLink className={enlace} to="/perfil">Mi perfil</NavLink>
       </>}
@@ -50,16 +59,16 @@ function Navegacion() {
         <NavLink className={enlace} to="/admin/medicos">Médicos</NavLink>
         <NavLink className={enlace} to="/admin/pacientes">Pacientes</NavLink>
       </>}
-      {usuario ? <><span className="nav-usuario">{usuario.nombre}</span><button className="salir" onClick={salir}>Salir</button></> : <>
+      {usuario ? <><span className="nav-usuario">{usuario.nombre}</span><button className="salir" disabled={saliendo} onClick={salir}>{saliendo ? "Saliendo…" : "Salir"}</button></> : !cargandoSesion && <>
         <NavLink className={enlace} to="/ingresar">Ingresar</NavLink><Link className="boton boton-chico" to="/registro">Registrarme</Link>
       </>}
     </nav>
+    {error && <p className="error" role="alert">{error}</p>}
   </div></header>;
 }
 
 export default function App() {
   return <>
-    <PersistenciaCarrito />
     <Navegacion />
     <main className="contenedor contenido">
       <Routes>
